@@ -112,9 +112,26 @@
                 <button id="addLayer">Add Layer</button>
                 <div class="layer-properties">
                     <h4>Layer Properties</h4>
-                    <div class="control-group">
-                        <label>Opacity: <span id="opacityValue">1</span></label>
-                        <input type="range" id="opacity" min="0" max="1" step="0.01" value="1">
+                    <div class="layer-property-group">
+                        <label>Opacity</label>
+                        <div class="control-row">
+                            <input type="range" id="opacity" min="0" max="1" step="0.01" value="1">
+                            <span id="opacityValue" class="value-display">1</span>
+                        </div>
+                    </div>
+                    <div class="layer-property-group">
+                        <label>Width</label>
+                        <div class="control-row">
+                            <input type="range" id="width" min="10" max="500" value="200">
+                            <input type="number" id="widthValue" class="value-input" step="1" value="200">
+                        </div>
+                    </div>
+                    <div class="layer-property-group">
+                        <label>Height</label>
+                        <div class="control-row">
+                            <input type="range" id="height" min="10" max="500" value="200">
+                            <input type="number" id="heightValue" class="value-input" step="1" value="200">
+                        </div>
                     </div>
                     <div class="control-group">
                         <label>Shadow:</label>

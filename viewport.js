@@ -89,6 +89,11 @@ class CSSAnimationViewport {
 
         // Layer Properties
         document.getElementById('opacity').addEventListener('input', (e) => this.updateLayerProperty('opacity', e.target.value));
+        document.getElementById('width').addEventListener('input', (e) => this.updateLayerProperty('width', e.target.value));
+        document.getElementById('widthValue').addEventListener('input', (e) => this.updateLayerProperty('width', e.target.value));
+        document.getElementById('height').addEventListener('input', (e) => this.updateLayerProperty('height', e.target.value));
+        document.getElementById('heightValue').addEventListener('input', (e) => this.updateLayerProperty('height', e.target.value));
+
         document.getElementById('shadowEnabled').addEventListener('change', (e) => this.updateShadow('enabled', e.target.checked));
         document.getElementById('shadowColor').addEventListener('input', (e) => this.updateShadow('color', e.target.value));
         document.getElementById('shadowX').addEventListener('input', (e) => this.updateShadow('x', e.target.value));
@@ -278,9 +283,22 @@ class CSSAnimationViewport {
         layer[property] = value;
         this.updateElement(layer);
         this.updateCSS();
-        const displayElement = document.getElementById(`${property}Value`);
-        if (displayElement) {
-            displayElement.textContent = value;
+
+        // Sync slider and number inputs
+        const valueInput = document.getElementById(`${property}Value`);
+        const rangeInput = document.getElementById(property);
+        if (valueInput && rangeInput) {
+            if (valueInput.value !== value) {
+                valueInput.value = value;
+            }
+            if (rangeInput.value !== value) {
+                rangeInput.value = value;
+            }
+        } else {
+             const displayElement = document.getElementById(`${property}Value`);
+            if (displayElement) {
+                displayElement.textContent = value;
+            }
         }
     }
 
@@ -302,6 +320,8 @@ class CSSAnimationViewport {
             rotateZ(${layer.transforms.rotateZ}deg)
         `;
         layer.element.style.transform = transform;
+        layer.element.style.width = `${layer.width}px`;
+        layer.element.style.height = `${layer.height}px`;
 
         const gradient = this.generateGradientString(layer.gradient);
         layer.element.style.background = gradient;
@@ -319,13 +339,13 @@ class CSSAnimationViewport {
         for (const layerId in this.layers) {
             const layer = this.layers[layerId];
             const gradientString = this.generateGradientString(layer.gradient);
-            css += `\n#${layer.id} {\n    width: 200px;\n    height: 200px;\n    position: absolute;\n    background: ${gradientString};\n    border-radius: 8px;\n    opacity: ${layer.opacity};\n    box-shadow: ${layer.shadow.enabled ? `${layer.shadow.x}px ${layer.shadow.y}px ${layer.shadow.blur}px ${layer.shadow.color}` : 'none'};\n    transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)\n               scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})\n               rotateX(${layer.transforms.rotateX}deg)\n               rotateY(${layer.transforms.rotateY}deg)\n               rotateZ(${layer.transforms.rotateZ}deg);\n    transition: transform ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s;\n    animation: ${layer.id}-animation ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s ${this.animation.iterationCount || 1} ${this.animation.direction || 'normal'};\n}\n\n@keyframes ${layer.id}-animation {\n    from {\n        transform: translate3d(0,0,0) scale3d(1,1,1) rotateX(0) rotateY(0) rotateZ(0);\n    }\n    to {\n        transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)\n                   scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})\n                   rotateX(${layer.transforms.rotateX}deg)\n                   rotateY(${layer.transforms.rotateY}deg)\n                   rotateZ(${layer.transforms.rotateZ}deg);\n    }\n}\n        `.trim() + '\n\n';
-        }
+            css += `\n#${layer.id} {\n    width: ${layer.width}px;\n    height: ${layer.height}px;\n    position: absolute;\n    background: ${gradientString};\n    border-radius: 8px;\n    opacity: ${layer.opacity};\n    box-shadow: ${layer.shadow.enabled ? `${layer.shadow.x}px ${layer.shadow.y}px ${layer.shadow.blur}px ${layer.shadow.color}` : 'none'};\n    transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)\n               scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})\n               rotateX(${layer.transforms.rotateX}deg)\n               rotateY(${layer.transforms.rotateY}deg)\n               rotateZ(${layer.transforms.rotateZ}deg);\n    transition: transform ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s;\n    animation: ${layer.id}-animation ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s ${this.animation.iterationCount || 1} ${this.animation.direction || 'normal'};\n}\n\n@keyframes ${layer.id}-animation {\n    from {\n        transform: translate3d(0,0,0) scale3d(1,1,1) rotateX(0) rotateY(0) rotateZ(0);\n    }\n    to {\n        transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)\n                   scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})\n                   rotateX(${layer.transforms.rotateX}deg)\n                   rotateY(${layer.transforms.rotateY}deg)\n                   rotateZ(${layer.transforms.rotateZ}deg);\n    }\n}\n        `.trim() + '\n\n';
+        } 
         this.cssOutput.value = css;
     }
 
-    addLayer(name, isPrompt = true) {
-        const layerName = isPrompt ? prompt('Enter layer name:') : name;
+    addLayer(name, isPrompt = true, sourceLayer = null) {
+        const layerName = isPrompt ? prompt('Enter layer name:', sourceLayer ? `${sourceLayer.name} Copy` : '') : name;
         if (layerName) {
             const id = `layer-${Date.now()}`;
             const newElement = document.createElement('div');
@@ -335,39 +355,52 @@ class CSSAnimationViewport {
 
             const numLayers = Object.keys(this.layers).length;
 
-            this.layers[id] = {
-                id: id,
-                name: layerName,
-                element: newElement,
-                visible: true,
-                opacity: 1,
-                shadow: {
-                    enabled: false,
-                    color: '#000000',
-                    x: 0,
-                    y: 0,
-                    blur: 10
-                },
-                transforms: {
-                    translateX: 10 * numLayers,
-                    translateY: 10 * numLayers,
-                    translateZ: 0,
-                    scaleX: 1,
-                    scaleY: 1,
-                    scaleZ: 1,
-                    rotateX: 35.264,
-                    rotateY: 45,
-                    rotateZ: 0
-                },
-                gradient: {
-                    type: 'linear',
-                    angle: 45,
-                    stops: [
-                        { color: '#3498db', alpha: 1, position: 0 },
-                        { color: '#e74c3c', alpha: 1, position: 100 }
-                    ]
-                }
-            };
+            if (sourceLayer) {
+                // Deep copy of sourceLayer
+                this.layers[id] = JSON.parse(JSON.stringify(sourceLayer));
+                this.layers[id].id = id;
+                this.layers[id].name = layerName;
+                this.layers[id].element = newElement;
+                // Offset the copied layer slightly
+                this.layers[id].transforms.translateX += 10;
+                this.layers[id].transforms.translateY += 10;
+            } else {
+                this.layers[id] = {
+                    id: id,
+                    name: layerName,
+                    element: newElement,
+                    visible: true,
+                    opacity: 1,
+                    width: 200,
+                    height: 200,
+                    shadow: {
+                        enabled: false,
+                        color: '#000000',
+                        x: 0,
+                        y: 0,
+                        blur: 10
+                    },
+                    transforms: {
+                        translateX: 10 * numLayers,
+                        translateY: 10 * numLayers,
+                        translateZ: 0,
+                        scaleX: 1,
+                        scaleY: 1,
+                        scaleZ: 1,
+                        rotateX: 45,
+                        rotateY: 0,
+                        rotateZ: -45
+                    },
+                    gradient: {
+                        type: 'linear',
+                        angle: 45,
+                        stops: [
+                            { color: '#3498db', alpha: 1, position: 0 },
+                            { color: '#e74c3c', alpha: 1, position: 100 }
+                        ]
+                    }
+                };
+            }
 
             this.updateElement(this.layers[id]);
             this.addLayerToUI(id, layerName);
@@ -376,14 +409,25 @@ class CSSAnimationViewport {
         }
     }
 
+    copyLayer(id) {
+        const sourceLayer = this.layers[id];
+        if (sourceLayer) {
+            this.addLayer(null, true, sourceLayer);
+        }
+    }
+
     addLayerToUI(id, name) {
         const layerItem = document.createElement('div');
         layerItem.className = 'layer-item';
         layerItem.dataset.layer = id;
-        layerItem.innerHTML = `\n            <span>${name}</span>\n            <div class="layer-controls">\n                <button class="visibility-btn">👁</button>\n                <button class="delete-btn">×</button>\n            </div>\n        `;
+        layerItem.innerHTML = `\n            <span>${name}</span>\n            <div class="layer-controls">\n                <button class="copy-btn" title="Copy layer">❐</button>\n                <button class="visibility-btn" title="Toggle visibility">👁</button>\n                <button class="delete-btn" title="Delete layer">×</button>\n            </div>\n        `;
         this.layerList.appendChild(layerItem);
 
         layerItem.addEventListener('click', () => this.setActiveLayer(id));
+        layerItem.querySelector('.copy-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.copyLayer(id);
+        });
         layerItem.querySelector('.visibility-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             this.toggleLayerVisibility(id);
@@ -420,6 +464,10 @@ class CSSAnimationViewport {
 
         document.getElementById('opacity').value = layer.opacity;
         document.getElementById('opacityValue').textContent = layer.opacity;
+        document.getElementById('width').value = layer.width;
+        document.getElementById('widthValue').value = layer.width;
+        document.getElementById('height').value = layer.height;
+        document.getElementById('heightValue').value = layer.height;
 
         document.getElementById('shadowEnabled').checked = layer.shadow.enabled;
         document.getElementById('shadowColor').value = layer.shadow.color;
