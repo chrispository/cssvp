@@ -18,7 +18,7 @@
 
         <!-- Transform Controls Panel -->
         <div class="floating-panel transform-panel">
-            <div class="panel-header">
+            <div class="panel-header collapsible">
                 <h3>Transform Controls</h3>
                 <button class="close-btn">&times;</button>
             </div>
@@ -77,8 +77,8 @@
         </div>
 
         <!-- Gradient Editor Panel -->
-        <div class="floating-panel gradient-panel">
-            <div class="panel-header">
+        <div class="floating-panel gradient-panel collapsed">
+            <div class="panel-header collapsible">
                 <h3>Gradient Editor</h3>
                 <button class="close-btn">&times;</button>
             </div>
@@ -102,7 +102,7 @@
 
         <!-- Layer Manager Panel -->
         <div class="floating-panel layer-panel">
-            <div class="panel-header">
+            <div class="panel-header collapsible">
                 <h3>Layer Manager</h3>
                 <button class="close-btn">&times;</button>
             </div>
@@ -134,21 +134,9 @@
             </div>
         </div>
 
-        <!-- CSS Output Panel -->
-        <div class="floating-panel css-panel">
-            <div class="panel-header">
-                <h3>Generated CSS</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="panel-content">
-                <textarea id="cssOutput" readonly></textarea>
-                <button id="copyCSS">Copy CSS</button>
-            </div>
-        </div>
-
         <!-- Animation Controls -->
-        <div class="floating-panel animation-panel">
-            <div class="panel-header">
+        <div class="floating-panel animation-panel collapsed">
+            <div class="panel-header collapsible">
                 <h3>Animation</h3>
                 <button class="close-btn">&times;</button>
             </div>
@@ -195,6 +183,31 @@
                 <button id="playAnimation">Play Animation</button>
                 <button id="pauseAnimation">Pause Animation</button>
                 <button id="resetAnimation">Reset</button>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="floating-panel settings-panel collapsed">
+            <div class="panel-header collapsible">
+                <h3>Settings</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="panel-content">
+                <button id="saveSettings">Save Settings</button>
+                <input type="file" id="loadSettingsInput" accept=".json" style="display: none;">
+                <button id="loadSettings">Load Settings</button>
+            </div>
+        </div>
+
+        <!-- CSS Output Panel -->
+        <div class="floating-panel css-panel collapsed">
+            <div class="panel-header collapsible">
+                <h3>Generated CSS</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="panel-content">
+                <textarea id="cssOutput" readonly></textarea>
+                <button id="copyCSS">Copy CSS</button>
             </div>
         </div>
     </div>

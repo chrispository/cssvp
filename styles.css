@@ -101,8 +101,17 @@ body {
     color: #e74c3c;
 }
 
+.panel-header.collapsible {
+    cursor: pointer;
+}
+
 .panel-content {
     padding: 20px;
+    transition: all 0.3s ease-in-out;
+}
+
+.floating-panel.collapsed .panel-content {
+    display: none;
 }
 
 /* Panel Positioning */
@@ -121,16 +130,21 @@ body {
     left: 20px;
 }
 
+.settings-panel {
+    top: 100px; /* Positioned below the gradient editor */
+    right: 20px;
+}
+
+.animation-panel {
+    top: 200px; /* Positioned below the settings panel */
+    right: 20px;
+}
+
 .css-panel {
     bottom: 20px;
     right: 20px;
 }
 
-.animation-panel {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
 
 /* Control Groups */
 .control-group {

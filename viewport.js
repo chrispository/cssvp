@@ -112,6 +112,20 @@ class CSSAnimationViewport {
                 e.target.closest('.floating-panel').style.display = 'none';
             });
         });
+
+        // Panel collapse/expand
+        document.querySelectorAll('.panel-header.collapsible').forEach(header => {
+            header.addEventListener('click', (e) => {
+                if (e.target.classList.contains('close-btn')) return;
+                const panel = header.closest('.floating-panel');
+                panel.classList.toggle('collapsed');
+            });
+        });
+
+        // Settings buttons
+        document.getElementById('saveSettings').addEventListener('click', () => saveSettings());
+        document.getElementById('loadSettings').addEventListener('click', () => document.getElementById('loadSettingsInput').click());
+        document.getElementById('loadSettingsInput').addEventListener('change', (e) => loadSettings(e));
     }
 
     updateTransform(property, value) {
@@ -341,8 +355,8 @@ class CSSAnimationViewport {
                     scaleX: 1,
                     scaleY: 1,
                     scaleZ: 1,
-                    rotateX: 0,
-                    rotateY: 0,
+                    rotateX: 35.264,
+                    rotateY: 45,
                     rotateZ: 0
                 },
                 gradient: {
@@ -382,7 +396,10 @@ class CSSAnimationViewport {
 
     setActiveLayer(id) {
         if (this.activeLayerId) {
-            document.querySelector(`[data-layer="${this.activeLayerId}"]`).classList.remove('active');
+            const activeLayerElement = document.querySelector(`[data-layer="${this.activeLayerId}"]`);
+            if (activeLayerElement) {
+                activeLayerElement.classList.remove('active');
+            }
         }
         this.activeLayerId = id;
         document.querySelector(`[data-layer="${id}"]`).classList.add('active');
@@ -420,10 +437,6 @@ class CSSAnimationViewport {
     }
 
     deleteLayer(id) {
-        if (Object.keys(this.layers).length <= 1) {
-            alert('Cannot delete the last layer.');
-            return;
-        }
         const layer = this.layers[id];
         layer.element.remove();
         document.querySelector(`[data-layer="${id}"]`).remove();
@@ -434,8 +447,19 @@ class CSSAnimationViewport {
             const remainingLayerIds = Object.keys(this.layers);
             if (remainingLayerIds.length > 0) {
                 this.setActiveLayer(remainingLayerIds[0]);
+            } else {
+                // Handle UI when no layers are left
+                this.updateCSS(); // Clears the CSS output
             }
         }
+        this.updateCSS();
+    }
+
+    clearAllLayers() {
+        this.layerList.innerHTML = '';
+        this.viewportScene.innerHTML = '';
+        this.layers = {};
+        this.activeLayerId = null;
         this.updateCSS();
     }
 
@@ -539,3 +563,93 @@ document.addEventListener('DOMContentLoaded', () => {
     window.cssViewport = new CSSAnimationViewport();
 });
 
+
+
+// --- Settings Management ---
+
+function saveSettings() {
+    const settings = {
+        layers: window.cssViewport.layers,
+        animation: window.cssViewport.animation,
+        savedGradients: window.cssViewport.savedGradients
+    };
+
+    // We need to remove the DOM element from the layers before saving
+    const serializableSettings = JSON.parse(JSON.stringify(settings));
+    for (const layerId in serializableSettings.layers) {
+        delete serializableSettings.layers[layerId].element;
+    }
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(serializableSettings, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "viewport_settings.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function loadSettings(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const contents = e.target.result;
+        try {
+            const settings = JSON.parse(contents);
+            applySettings(settings);
+        } catch (error) {
+            console.error("Error parsing JSON file:", error);
+            alert("Could not load settings: Invalid file format.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function applySettings(settings) {
+    const viewport = window.cssViewport;
+
+    // Clear existing layers and their UI elements
+    viewport.clearAllLayers();
+
+    viewport.animation = settings.animation || {};
+    viewport.savedGradients = settings.savedGradients || {};
+
+    // Recreate layers from settings
+    for (const layerId in settings.layers) {
+        const layerData = settings.layers[layerId];
+        
+        // Create a new layer element
+        const newElement = document.createElement('div');
+        newElement.className = 'animated-rectangle';
+        newElement.id = layerData.id;
+        viewport.viewportScene.appendChild(newElement);
+
+        // Restore layer data
+        viewport.layers[layerData.id] = {
+            ...layerData,
+            element: newElement
+        };
+        
+        viewport.addLayerToUI(layerData.id, layerData.name);
+        viewport.updateElement(viewport.layers[layerData.id]);
+    }
+
+    // Set the active layer to be the first one, if it exists
+    const layerIds = Object.keys(viewport.layers);
+    if (layerIds.length > 0) {
+        viewport.setActiveLayer(layerIds[0]);
+    } else {
+        // If no layers are loaded, create a default one
+        viewport.addLayer('Base Layer', false);
+    }
+
+    viewport.updateSavedGradientsUI();
+    viewport.updateCSS();
+    
+    // Reset the file input so the same file can be loaded again
+    document.getElementById('loadSettingsInput').value = '';
+}
