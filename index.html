@@ -91,17 +91,11 @@
                             <option value="radial">Radial</option>
                         </select>
                     </label>
-                    <div class="color-stops">
-                        <div class="color-stop">
-                            <input type="color" id="color1" value="#3498db">
-                            <input type="range" id="position1" min="0" max="100" value="0">
-                        </div>
-                        <div class="color-stop">
-                            <input type="color" id="color2" value="#e74c3c">
-                            <input type="range" id="position2" min="0" max="100" value="100">
-                        </div>
+                    <div class="color-stops" id="colorStopsContainer">
+                        <!-- Color stops will be dynamically generated here -->
                     </div>
                     <button id="addColorStop">Add Color Stop</button>
+                    <button id="saveGradient">Save Gradient</button>
                 </div>
             </div>
         </div>
@@ -116,6 +110,27 @@
                 <div class="layer-list">
                 </div>
                 <button id="addLayer">Add Layer</button>
+                <div class="layer-properties">
+                    <h4>Layer Properties</h4>
+                    <div class="control-group">
+                        <label>Opacity: <span id="opacityValue">1</span></label>
+                        <input type="range" id="opacity" min="0" max="1" step="0.01" value="1">
+                    </div>
+                    <div class="control-group">
+                        <label>Shadow:</label>
+                        <div class="shadow-controls">
+                            <input type="checkbox" id="shadowEnabled">
+                            <input type="color" id="shadowColor" value="#000000">
+                            <input type="number" id="shadowX" placeholder="X" value="0">
+                            <input type="number" id="shadowY" placeholder="Y" value="0">
+                            <input type="number" id="shadowBlur" placeholder="Blur" value="10">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Saved Gradients:</label>
+                        <select id="savedGradients"></select>
+                    </div>
+                </div>
             </div>
         </div>
 

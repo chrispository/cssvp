@@ -8,6 +8,11 @@ class CSSAnimationViewport {
 
         this.layers = {};
         this.activeLayerId = null;
+        this.savedGradients = {
+            'Sunset': 'linear-gradient(45deg, #ff6b6b, #feca57)',
+            'Ocean': 'linear-gradient(45deg, #48dbfb, #1dd1a1)',
+            'Grape': 'linear-gradient(45deg, #5f27cd, #c56cf0)'
+        };
 
         this.animation = {};
 
@@ -18,6 +23,7 @@ class CSSAnimationViewport {
         this.addLayer('Base Layer', false);
         this.setupEventListeners();
         this.makePanelsDraggable();
+        this.updateSavedGradientsUI();
     }
 
     setupEventListeners() {
@@ -55,11 +61,39 @@ class CSSAnimationViewport {
         document.getElementById('timingFunction').addEventListener('change', (e) => this.updateAnimation('timingFunction', e.target.value));
 
         // Gradient controls
-        document.getElementById('gradientType').addEventListener('change', (e) => this.updateGradient('type', e.target.value));
-        document.getElementById('color1').addEventListener('input', (e) => this.updateGradient('colors', 0, e.target.value));
-        document.getElementById('color2').addEventListener('input', (e) => this.updateGradient('colors', 1, e.target.value));
-        document.getElementById('position1').addEventListener('input', (e) => this.updateGradient('positions', 0, e.target.value));
-        document.getElementById('position2').addEventListener('input', (e) => this.updateGradient('positions', 1, e.target.value));
+        document.getElementById('gradientType').addEventListener('change', () => this.updateGradient());
+        document.getElementById('colorStopsContainer').addEventListener('input', e => {
+            const target = e.target;
+            const stopElement = target.closest('.color-stop');
+            if (!stopElement) return;
+
+            const index = parseInt(stopElement.dataset.index, 10);
+            const property = target.dataset.property; // 'color', 'position', 'alpha'
+
+            if (property) {
+                this.updateGradientStop(index, property, target.value);
+            }
+        });
+        document.getElementById('colorStopsContainer').addEventListener('click', e => {
+            if (e.target.classList.contains('remove-stop-btn')) {
+                const stopElement = e.target.closest('.color-stop');
+                const index = parseInt(stopElement.dataset.index, 10);
+                this.removeGradientStop(index);
+            }
+        });
+
+        document.getElementById('addColorStop').addEventListener('click', () => this.addGradientStop());
+        document.getElementById('saveGradient').addEventListener('click', () => this.saveGradient());
+        document.getElementById('savedGradients').addEventListener('change', (e) => this.applySavedGradient(e.target.value));
+
+
+        // Layer Properties
+        document.getElementById('opacity').addEventListener('input', (e) => this.updateLayerProperty('opacity', e.target.value));
+        document.getElementById('shadowEnabled').addEventListener('change', (e) => this.updateShadow('enabled', e.target.checked));
+        document.getElementById('shadowColor').addEventListener('input', (e) => this.updateShadow('color', e.target.value));
+        document.getElementById('shadowX').addEventListener('input', (e) => this.updateShadow('x', e.target.value));
+        document.getElementById('shadowY').addEventListener('input', (e) => this.updateShadow('y', e.target.value));
+        document.getElementById('shadowBlur').addEventListener('input', (e) => this.updateShadow('blur', e.target.value));
 
         // Animation buttons
         document.getElementById('playAnimation').addEventListener('click', () => this.playAnimation());
@@ -113,17 +147,137 @@ class CSSAnimationViewport {
         }
     }
 
-    updateGradient(property, index, value) {
+    // --- Gradient Management ---
+
+    updateGradient() {
         if (!this.activeLayerId) return;
         const layer = this.layers[this.activeLayerId];
-        if (index !== undefined) {
-            layer.gradient[property][index] = value;
-        } else {
-            layer.gradient[property] = value;
-        }
+        layer.gradient.type = document.getElementById('gradientType').value;
+        // Angle control could be added here in the future
         this.updateElement(layer);
         this.updateCSS();
     }
+
+    updateGradientStop(index, property, value) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        const stop = layer.gradient.stops[index];
+
+        if (stop) {
+            stop[property] = value;
+            this.updateElement(layer);
+            this.updateCSS();
+        }
+    }
+
+    addGradientStop() {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        const stops = layer.gradient.stops;
+
+        // Add new stop at a reasonable position
+        const lastStop = stops[stops.length - 1];
+        const newPosition = Math.min(100, lastStop.position + 10);
+
+        stops.push({
+            color: '#ffffff',
+            alpha: 1,
+            position: newPosition
+        });
+
+        // Re-sort stops by position
+        stops.sort((a, b) => a.position - b.position);
+
+        this.renderColorStopsUI(stops);
+        this.updateElement(layer);
+        this.updateCSS();
+    }
+
+    removeGradientStop(index) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        const stops = layer.gradient.stops;
+
+        if (stops.length <= 2) {
+            alert('A gradient must have at least two color stops.');
+            return;
+        }
+
+        stops.splice(index, 1);
+        this.renderColorStopsUI(stops);
+        this.updateElement(layer);
+        this.updateCSS();
+    }
+
+    renderColorStopsUI(stops) {
+        const container = document.getElementById('colorStopsContainer');
+        container.innerHTML = ''; // Clear existing stops
+
+        stops.forEach((stop, index) => {
+            const stopElement = document.createElement('div');
+            stopElement.className = 'color-stop';
+            stopElement.dataset.index = index;
+
+            stopElement.innerHTML = `
+                <input type="color" data-property="color" value="${stop.color}">
+                <div class="alpha-control">
+                    <label>Alpha: ${stop.alpha}</label>
+                    <input type="range" data-property="alpha" min="0" max="1" step="0.01" value="${stop.alpha}">
+                </div>
+                <div class="alpha-control">
+                    <label>Pos: ${stop.position}%</label>
+                    <input type="range" data-property="position" min="0" max="100" value="${stop.position}">
+                </div>
+                <button class="remove-stop-btn" title="Remove color stop">×</button>
+            `;
+            container.appendChild(stopElement);
+        });
+    }
+
+    generateGradientString(gradient) {
+        const colorStopsString = gradient.stops
+            .map(stop => {
+                const rgba = this.hexToRgba(stop.color, stop.alpha);
+                return `${rgba} ${stop.position}%`;
+            })
+            .join(', ');
+
+        if (gradient.type === 'linear') {
+            return `linear-gradient(45deg, ${colorStopsString})`;
+        } else { // radial
+            return `radial-gradient(circle, ${colorStopsString})`;
+        }
+    }
+
+    hexToRgba(hex, alpha = 1) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // --- End Gradient Management ---
+
+    updateLayerProperty(property, value) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        layer[property] = value;
+        this.updateElement(layer);
+        this.updateCSS();
+        const displayElement = document.getElementById(`${property}Value`);
+        if (displayElement) {
+            displayElement.textContent = value;
+        }
+    }
+
+    updateShadow(property, value) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        layer.shadow[property] = value;
+        this.updateElement(layer);
+        this.updateCSS();
+    }
+
 
     updateElement(layer) {
         const transform = `
@@ -135,47 +289,23 @@ class CSSAnimationViewport {
         `;
         layer.element.style.transform = transform;
 
-        const gradient = layer.gradient.type === 'linear'
-            ? `linear-gradient(45deg, ${layer.gradient.colors[0]} ${layer.gradient.positions[0]}%, ${layer.gradient.colors[1]} ${layer.gradient.positions[1]}%)`
-            : `radial-gradient(circle, ${layer.gradient.colors[0]} ${layer.gradient.positions[0]}%, ${layer.gradient.colors[1]} ${layer.gradient.positions[1]}%)`;
+        const gradient = this.generateGradientString(layer.gradient);
         layer.element.style.background = gradient;
+
+        layer.element.style.opacity = layer.opacity;
+        if (layer.shadow.enabled) {
+            layer.element.style.boxShadow = `${layer.shadow.x}px ${layer.shadow.y}px ${layer.shadow.blur}px ${layer.shadow.color}`;
+        } else {
+            layer.element.style.boxShadow = 'none';
+        }
     }
 
     updateCSS() {
         let css = '/* CSS Animation Generated by CSS Animation Viewport */\n';
         for (const layerId in this.layers) {
             const layer = this.layers[layerId];
-            css += `
-#${layer.id} {
-    width: 200px;
-    height: 200px;
-    position: absolute;
-    background: ${layer.gradient.type === 'linear'
-        ? `linear-gradient(45deg, ${layer.gradient.colors[0]} ${layer.gradient.positions[0]}%, ${layer.gradient.colors[1]} ${layer.gradient.positions[1]}%)`
-        : `radial-gradient(circle, ${layer.gradient.colors[0]} ${layer.gradient.positions[0]}%, ${layer.gradient.colors[1]} ${layer.gradient.positions[1]}%)`};
-    border-radius: 8px;
-    transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)
-               scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})
-               rotateX(${layer.transforms.rotateX}deg)
-               rotateY(${layer.transforms.rotateY}deg)
-               rotateZ(${layer.transforms.rotateZ}deg);
-    transition: transform ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s;
-    animation: ${layer.id}-animation ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s ${this.animation.iterationCount || 1} ${this.animation.direction || 'normal'};
-}
-
-@keyframes ${layer.id}-animation {
-    from {
-        transform: translate3d(0,0,0) scale3d(1,1,1) rotateX(0) rotateY(0) rotateZ(0);
-    }
-    to {
-        transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)
-                   scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})
-                   rotateX(${layer.transforms.rotateX}deg)
-                   rotateY(${layer.transforms.rotateY}deg)
-                   rotateZ(${layer.transforms.rotateZ}deg);
-    }
-}
-        `.trim() + '\n\n';
+            const gradientString = this.generateGradientString(layer.gradient);
+            css += `\n#${layer.id} {\n    width: 200px;\n    height: 200px;\n    position: absolute;\n    background: ${gradientString};\n    border-radius: 8px;\n    opacity: ${layer.opacity};\n    box-shadow: ${layer.shadow.enabled ? `${layer.shadow.x}px ${layer.shadow.y}px ${layer.shadow.blur}px ${layer.shadow.color}` : 'none'};\n    transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)\n               scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})\n               rotateX(${layer.transforms.rotateX}deg)\n               rotateY(${layer.transforms.rotateY}deg)\n               rotateZ(${layer.transforms.rotateZ}deg);\n    transition: transform ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s;\n    animation: ${layer.id}-animation ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s ${this.animation.iterationCount || 1} ${this.animation.direction || 'normal'};\n}\n\n@keyframes ${layer.id}-animation {\n    from {\n        transform: translate3d(0,0,0) scale3d(1,1,1) rotateX(0) rotateY(0) rotateZ(0);\n    }\n    to {\n        transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)\n                   scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})\n                   rotateX(${layer.transforms.rotateX}deg)\n                   rotateY(${layer.transforms.rotateY}deg)\n                   rotateZ(${layer.transforms.rotateZ}deg);\n    }\n}\n        `.trim() + '\n\n';
         }
         this.cssOutput.value = css;
     }
@@ -196,6 +326,14 @@ class CSSAnimationViewport {
                 name: layerName,
                 element: newElement,
                 visible: true,
+                opacity: 1,
+                shadow: {
+                    enabled: false,
+                    color: '#000000',
+                    x: 0,
+                    y: 0,
+                    blur: 10
+                },
                 transforms: {
                     translateX: 10 * numLayers,
                     translateY: 10 * numLayers,
@@ -209,8 +347,11 @@ class CSSAnimationViewport {
                 },
                 gradient: {
                     type: 'linear',
-                    colors: ['#3498db', '#e74c3c'],
-                    positions: [0, 100]
+                    angle: 45,
+                    stops: [
+                        { color: '#3498db', alpha: 1, position: 0 },
+                        { color: '#e74c3c', alpha: 1, position: 100 }
+                    ]
                 }
             };
 
@@ -225,13 +366,7 @@ class CSSAnimationViewport {
         const layerItem = document.createElement('div');
         layerItem.className = 'layer-item';
         layerItem.dataset.layer = id;
-        layerItem.innerHTML = `
-            <span>${name}</span>
-            <div class="layer-controls">
-                <button class="visibility-btn">👁</button>
-                <button class="delete-btn">×</button>
-            </div>
-        `;
+        layerItem.innerHTML = `\n            <span>${name}</span>\n            <div class="layer-controls">\n                <button class="visibility-btn">👁</button>\n                <button class="delete-btn">×</button>\n            </div>\n        `;
         this.layerList.appendChild(layerItem);
 
         layerItem.addEventListener('click', () => this.setActiveLayer(id));
@@ -264,10 +399,16 @@ class CSSAnimationViewport {
             }
         }
         document.getElementById('gradientType').value = layer.gradient.type;
-        document.getElementById('color1').value = layer.gradient.colors[0];
-        document.getElementById('color2').value = layer.gradient.colors[1];
-        document.getElementById('position1').value = layer.gradient.positions[0];
-        document.getElementById('position2').value = layer.gradient.positions[1];
+        this.renderColorStopsUI(layer.gradient.stops);
+
+        document.getElementById('opacity').value = layer.opacity;
+        document.getElementById('opacityValue').textContent = layer.opacity;
+
+        document.getElementById('shadowEnabled').checked = layer.shadow.enabled;
+        document.getElementById('shadowColor').value = layer.shadow.color;
+        document.getElementById('shadowX').value = layer.shadow.x;
+        document.getElementById('shadowY').value = layer.shadow.y;
+        document.getElementById('shadowBlur').value = layer.shadow.blur;
     }
 
     toggleLayerVisibility(id) {
@@ -361,8 +502,40 @@ class CSSAnimationViewport {
             document.addEventListener('mouseup', () => isDragging = false);
         });
     }
+
+    saveGradient() {
+        const name = prompt('Enter a name for the gradient:');
+        if (name && this.activeLayerId) {
+            const layer = this.layers[this.activeLayerId];
+            const gradientString = this.generateGradientString(layer.gradient);
+            this.savedGradients[name] = gradientString;
+            this.updateSavedGradientsUI();
+        }
+    }
+
+    updateSavedGradientsUI() {
+        const select = document.getElementById('savedGradients');
+        select.innerHTML = '';
+        for (const name in this.savedGradients) {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            select.appendChild(option);
+        }
+    }
+
+    applySavedGradient(name) {
+        if (!this.activeLayerId || !this.savedGradients[name]) return;
+        const layer = this.layers[this.activeLayerId];
+        const gradient = this.savedGradients[name];
+        layer.element.style.background = gradient;
+        // This is a simplified approach. A more robust solution would parse the gradient string
+        // and update the layer.gradient object. For now, we just apply the style directly.
+        this.updateCSS();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     window.cssViewport = new CSSAnimationViewport();
 });
+
