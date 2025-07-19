@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Animation Viewport</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="viewport-container">
+        <!-- Main Viewport -->
+        <div class="main-viewport">
+            <div class="viewport-scene">
+            </div>
+        </div>
+
+        <!-- Floating Control Panels -->
+
+        <!-- Transform Controls Panel -->
+        <div class="floating-panel transform-panel">
+            <div class="panel-header">
+                <h3>Transform Controls</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="panel-content">
+                <!-- Translation Controls -->
+                <div class="control-group">
+                    <h4>Translation</h4>
+                    <div class="axis-control">
+                        <label>X: <span id="translateXValue">0</span>px</label>
+                        <input type="range" id="translateX" min="-200" max="200" value="0">
+                    </div>
+                    <div class="axis-control">
+                        <label>Y: <span id="translateYValue">0</span>px</label>
+                        <input type="range" id="translateY" min="-200" max="200" value="0">
+                    </div>
+                    <div class="axis-control">
+                        <label>Z: <span id="translateZValue">0</span>px</label>
+                        <input type="range" id="translateZ" min="-200" max="200" value="0">
+                    </div>
+                </div>
+
+                <!-- Scale Controls -->
+                <div class="control-group">
+                    <h4>Scale</h4>
+                    <div class="axis-control">
+                        <label>X: <span id="scaleXValue">1</span></label>
+                        <input type="range" id="scaleX" min="0.1" max="3" step="0.1" value="1">
+                    </div>
+                    <div class="axis-control">
+                        <label>Y: <span id="scaleYValue">1</span></label>
+                        <input type="range" id="scaleY" min="0.1" max="3" step="0.1" value="1">
+                    </div>
+                    <div class="axis-control">
+                        <label>Z: <span id="scaleZValue">1</span></label>
+                        <input type="range" id="scaleZ" min="0.1" max="3" step="0.1" value="1">
+                    </div>
+                </div>
+
+                <!-- Rotation Controls -->
+                <div class="control-group">
+                    <h4>Rotation</h4>
+                    <div class="axis-control">
+                        <label>X: <span id="rotateXValue">0</span>°</label>
+                        <input type="range" id="rotateX" min="-360" max="360" value="0">
+                    </div>
+                    <div class="axis-control">
+                        <label>Y: <span id="rotateYValue">0</span>°</label>
+                        <input type="range" id="rotateY" min="-360" max="360" value="0">
+                    </div>
+                    <div class="axis-control">
+                        <label>Z: <span id="rotateZValue">0</span>°</label>
+                        <input type="range" id="rotateZ" min="-360" max="360" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gradient Editor Panel -->
+        <div class="floating-panel gradient-panel">
+            <div class="panel-header">
+                <h3>Gradient Editor</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="panel-content">
+                <div class="gradient-preview" id="gradientPreview"></div>
+                <div class="gradient-controls">
+                    <label>Gradient Type:
+                        <select id="gradientType">
+                            <option value="linear">Linear</option>
+                            <option value="radial">Radial</option>
+                        </select>
+                    </label>
+                    <div class="color-stops">
+                        <div class="color-stop">
+                            <input type="color" id="color1" value="#3498db">
+                            <input type="range" id="position1" min="0" max="100" value="0">
+                        </div>
+                        <div class="color-stop">
+                            <input type="color" id="color2" value="#e74c3c">
+                            <input type="range" id="position2" min="0" max="100" value="100">
+                        </div>
+                    </div>
+                    <button id="addColorStop">Add Color Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layer Manager Panel -->
+        <div class="floating-panel layer-panel">
+            <div class="panel-header">
+                <h3>Layer Manager</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="panel-content">
+                <div class="layer-list">
+                </div>
+                <button id="addLayer">Add Layer</button>
+            </div>
+        </div>
+
+        <!-- CSS Output Panel -->
+        <div class="floating-panel css-panel">
+            <div class="panel-header">
+                <h3>Generated CSS</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="panel-content">
+                <textarea id="cssOutput" readonly></textarea>
+                <button id="copyCSS">Copy CSS</button>
+            </div>
+        </div>
+
+        <!-- Animation Controls -->
+        <div class="floating-panel animation-panel">
+            <div class="panel-header">
+                <h3>Animation</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="panel-content">
+                <div class="control-group">
+                    <label>Duration: <span id="durationValue">2</span>s</label>
+                    <input type="range" id="duration" min="0.1" max="10" step="0.1" value="2">
+                </div>
+                <div class="control-group">
+                    <label>Delay: <span id="delayValue">0</span>s</label>
+                    <input type="range" id="delay" min="0" max="5" step="0.1" value="0">
+                </div>
+                <div class="control-group">
+                    <label>Iteration Count:
+                        <select id="iterationCount">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="infinite">Infinite</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label>Direction:
+                        <select id="direction">
+                            <option value="normal">Normal</option>
+                            <option value="reverse">Reverse</option>
+                            <option value="alternate">Alternate</option>
+                            <option value="alternate-reverse">Alternate Reverse</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label>Timing Function:
+                        <select id="timingFunction">
+                            <option value="ease">Ease</option>
+                            <option value="linear">Linear</option>
+                            <option value="ease-in">Ease In</option>
+                            <option value="ease-out">Ease Out</option>
+                            <option value="ease-in-out">Ease In Out</option>
+                        </select>
+                    </label>
+                </div>
+                <button id="playAnimation">Play Animation</button>
+                <button id="pauseAnimation">Pause Animation</button>
+                <button id="resetAnimation">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="viewport.js"></script>
+</body>
+</html>
