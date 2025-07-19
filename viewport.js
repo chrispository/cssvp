@@ -34,6 +34,19 @@ class CSSAnimationViewport {
         document.getElementById('rotateY').addEventListener('input', (e) => this.updateTransform('rotateY', e.target.value));
         document.getElementById('rotateZ').addEventListener('input', (e) => this.updateTransform('rotateZ', e.target.value));
 
+        // Transform value inputs
+        document.getElementById('translateXValue').addEventListener('input', (e) => this.updateTransform('translateX', e.target.value));
+        document.getElementById('translateYValue').addEventListener('input', (e) => this.updateTransform('translateY', e.target.value));
+        document.getElementById('translateZValue').addEventListener('input', (e) => this.updateTransform('translateZ', e.target.value));
+
+        document.getElementById('scaleXValue').addEventListener('input', (e) => this.updateTransform('scaleX', e.target.value));
+        document.getElementById('scaleYValue').addEventListener('input', (e) => this.updateTransform('scaleY', e.target.value));
+        document.getElementById('scaleZValue').addEventListener('input', (e) => this.updateTransform('scaleZ', e.target.value));
+
+        document.getElementById('rotateXValue').addEventListener('input', (e) => this.updateTransform('rotateX', e.target.value));
+        document.getElementById('rotateYValue').addEventListener('input', (e) => this.updateTransform('rotateY', e.target.value));
+        document.getElementById('rotateZValue').addEventListener('input', (e) => this.updateTransform('rotateZ', e.target.value));
+
         // Animation controls
         document.getElementById('duration').addEventListener('input', (e) => this.updateAnimation('duration', e.target.value));
         document.getElementById('delay').addEventListener('input', (e) => this.updateAnimation('delay', e.target.value));
@@ -70,14 +83,23 @@ class CSSAnimationViewport {
     updateTransform(property, value) {
         if (!this.activeLayerId) return;
         const layer = this.layers[this.activeLayerId];
-        layer.transforms[property] = parseFloat(value);
+        const parsedValue = parseFloat(value);
+
+        if (isNaN(parsedValue)) return;
+
+        layer.transforms[property] = parsedValue;
         this.updateElement(layer);
         this.updateCSS();
 
-        const displayElement = document.getElementById(`${property}Value`);
-        if (displayElement) {
-            const unit = property.includes('translate') ? 'px' : property.includes('rotate') ? '°' : '';
-            displayElement.textContent = value + unit;
+        // Sync the corresponding input elements
+        const rangeInput = document.getElementById(property);
+        const valueInput = document.getElementById(`${property}Value`);
+
+        if (rangeInput.value !== value) {
+            rangeInput.value = value;
+        }
+        if (valueInput.value !== value) {
+            valueInput.value = value;
         }
     }
 
@@ -236,10 +258,9 @@ class CSSAnimationViewport {
         for (const prop in layer.transforms) {
             const input = document.getElementById(prop);
             if (input) input.value = layer.transforms[prop];
-            const displayElement = document.getElementById(`${prop}Value`);
-            if (displayElement) {
-                const unit = prop.includes('translate') ? 'px' : prop.includes('rotate') ? '°' : '';
-                displayElement.textContent = layer.transforms[prop] + unit;
+            const valueInput = document.getElementById(`${prop}Value`);
+            if (valueInput) {
+                valueInput.value = layer.transforms[prop];
             }
         }
         document.getElementById('gradientType').value = layer.gradient.type;

@@ -168,6 +168,23 @@ body {
     -webkit-appearance: none;
 }
 
+.axis-control .value-input {
+    width: 60px;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    -moz-appearance: textfield;
+}
+
+.axis-control .value-input::-webkit-outer-spin-button,
+.axis-control .value-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
 .axis-control input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 16px;
