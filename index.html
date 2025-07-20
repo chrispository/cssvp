@@ -24,19 +24,40 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
+    display: flex;
+}
+
+/* Sidebars */
+.sidebar {
+    width: 320px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.sidebar-left {
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-right {
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* Main Viewport */
 .main-viewport {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    flex: 1;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     perspective: 1000px;
+    position: relative;
 }
 
 .viewport-scene {
@@ -60,16 +81,13 @@ body {
     transform-style: preserve-3d;
 }
 
-/* Floating Panels */
-.floating-panel {
-    position: absolute;
+/* Docked Panels */
+.docked-panel {
     background: white;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     min-width: 280px;
-    z-index: 1000;
 }
 
 .panel-header {
@@ -78,7 +96,7 @@ body {
     align-items: center;
     padding: 16px 20px;
     border-bottom: 1px solid #e0e0e0;
-    cursor: move;
+    cursor: default; /* No longer draggable */
 }
 
 .panel-header h3 {
@@ -126,50 +144,14 @@ body {
     color: #e74c3c;
 }
 
-.panel-header.collapsible {
-    cursor: move; /* Change cursor to move for the whole header */
-}
-
 .panel-content {
     padding: 20px;
     transition: all 0.3s ease-in-out;
 }
 
-.floating-panel.collapsed .panel-content {
+.docked-panel.collapsed .panel-content {
     display: none;
 }
-
-/* Panel Positioning */
-.transform-panel {
-    top: 20px;
-    left: 20px;
-}
-
-.gradient-panel {
-    top: 20px;
-    right: 20px;
-}
-
-.layer-panel {
-    bottom: 20px;
-    left: 20px;
-}
-
-.settings-panel {
-    top: 100px; /* Positioned below the gradient editor */
-    right: 20px;
-}
-
-.animation-panel {
-    top: 200px; /* Positioned below the settings panel */
-    right: 20px;
-}
-
-.css-panel {
-    bottom: 20px;
-    right: 20px;
-}
-
 
 /* Control Groups */
 .control-group {
@@ -187,27 +169,10 @@ body {
     margin-bottom: 12px;
 }
 
-.axis-control {
-    margin-bottom: 12px;
-}
 
-.axis-control label {
-    display: block;
-    font-size: 13px;
-    color: #555;
-    margin-bottom: 4px;
-}
 
-.axis-control input[type="range"] {
-    width: 100%;
-    height: 4px;
-    background: #e0e0e0;
-    border-radius: 2px;
-    outline: none;
-    -webkit-appearance: none;
-}
-
-.axis-control .value-input {
+.docked-panel .control-row .value-input,
+.layer-property-group .value-input {
     width: 60px;
     padding: 4px 8px;
     border: 1px solid #ddd;
@@ -217,14 +182,13 @@ body {
     -moz-appearance: textfield;
 }
 
-.axis-control .value-input::-webkit-outer-spin-button,
-.axis-control .value-input::-webkit-inner-spin-button {
+.docked-panel .control-row .value-input::-webkit-outer-spin-button,
+.docked-panel .control-row .value-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-
-.axis-control input[type="range"]::-webkit-slider-thumb {
+.docked-panel .control-row input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
@@ -233,7 +197,7 @@ body {
     cursor: pointer;
 }
 
-.axis-control input[type="range"]::-moz-range-thumb {
+.docked-panel .control-row input[type="range"]::-moz-range-thumb {
     width: 16px;
     height: 16px;
     background: #3498db;
@@ -531,29 +495,20 @@ button:active {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    .floating-panel {
-        position: fixed;
-        width: 90%;
-        max-width: 320px;
+@media (max-width: 1024px) {
+    .viewport-container {
+        flex-direction: column;
     }
-
-    .transform-panel,
-    .gradient-panel,
-    .layer-panel,
-    .css-panel,
-    .animation-panel {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
-}
-
-/* Dragging States */
-.floating-panel.dragging {
-    opacity: 0.8;
-    z-index: 9999;
+    .main-viewport {
+        order: -1; /* Move viewport to the top */
+        height: 50vh;
+    }
 }
 
 /* Focus States */
@@ -585,241 +540,273 @@ textarea:focus {
 </head>
 <body>
     <div class="viewport-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar sidebar-left">
+            <!-- Transform Controls Panel -->
+            <div class="docked-panel transform-panel">
+                <div class="panel-header">
+                    <span class="collapse-toggle">-</span><h3>Transform Controls</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="panel-content">
+                    <!-- Translation Controls -->
+                    <div class="control-group">
+                        <h4>Translation</h4>
+                        <div class="layer-property-group">
+                            <label>X</label>
+                            <div class="control-row">
+                                <input type="range" id="translateX" min="-200" max="200" value="0">
+                                <input type="number" id="translateXValue" class="value-input" step="1" value="0">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Y</label>
+                            <div class="control-row">
+                                <input type="range" id="translateY" min="-200" max="200" value="0">
+                                <input type="number" id="translateYValue" class="value-input" step="1" value="0">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Z</label>
+                            <div class="control-row">
+                                <input type="range" id="translateZ" min="-200" max="200" value="0">
+                                <input type="number" id="translateZValue" class="value-input" step="1" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scale Controls -->
+                    <div class="control-group">
+                        <h4>Scale</h4>
+                        <div class="layer-property-group">
+                            <label>X</label>
+                            <div class="control-row">
+                                <input type="range" id="scaleX" min="0.1" max="3" step="0.1" value="1">
+                                <input type="number" id="scaleXValue" class="value-input" step="0.1" value="1">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Y</label>
+                            <div class="control-row">
+                                <input type="range" id="scaleY" min="0.1" max="3" step="0.1" value="1">
+                                <input type="number" id="scaleYValue" class="value-input" step="0.1" value="1">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Z</label>
+                            <div class="control-row">
+                                <input type="range" id="scaleZ" min="0.1" max="3" step="0.1" value="1">
+                                <input type="number" id="scaleZValue" class="value-input" step="0.1" value="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rotation Controls -->
+                    <div class="control-group">
+                        <h4>Rotation</h4>
+                        <div class="layer-property-group">
+                            <label>X</label>
+                            <div class="control-row">
+                                <input type="range" id="rotateX" min="-360" max="360" value="0">
+                                <input type="number" id="rotateXValue" class="value-input" step="1" value="0">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Y</label>
+                            <div class="control-row">
+                                <input type="range" id="rotateY" min="-360" max="360" value="0">
+                                <input type="number" id="rotateYValue" class="value-input" step="1" value="0">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Z</label>
+                            <div class="control-row">
+                                <input type="range" id="rotateZ" min="-360" max="360" value="0">
+                                <input type="number" id="rotateZValue" class="value-input" step="1" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer Manager Panel -->
+            <div class="docked-panel layer-panel">
+                <div class="panel-header">
+                    <span class="collapse-toggle">-</span><h3>Layer Manager</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="panel-content">
+                    <div class="layer-list">
+                    </div>
+                    <button id="addLayer">Add Layer</button>
+                    <div class="layer-properties">
+                        <h4>Layer Properties</h4>
+                        <div class="layer-property-group">
+                            <label>Opacity</label>
+                            <div class="control-row">
+                                <input type="range" id="opacity" min="0" max="1" step="0.01" value="1">
+                                <input type="number" id="opacityValue" class="value-input" step="0.01" min="0" max="1" value="1">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Width</label>
+                            <div class="control-row">
+                                <input type="range" id="width" min="10" max="500" value="200">
+                                <input type="number" id="widthValue" class="value-input" step="1" value="200">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Height</label>
+                            <div class="control-row">
+                                <input type="range" id="height" min="10" max="500" value="200">
+                                <input type="number" id="heightValue" class="value-input" step="1" value="200">
+                            </div>
+                        </div>
+                        <div class="control-group shadow-control-group">
+                            <div class="shadow-header">
+                                <label>Shadow</label>
+                                <input type="checkbox" id="shadowEnabled" title="Enable/Disable Shadow">
+                                <input type="color" id="shadowColor" value="#000000" title="Shadow Color">
+                            </div>
+                            <div class="layer-property-group">
+                                <label>X Offset</label>
+                                <div class="control-row">
+                                    <input type="range" id="shadowX" min="-50" max="50" value="0">
+                                    <input type="number" id="shadowXValue" class="value-input" value="0">
+                                </div>
+                            </div>
+                            <div class="layer-property-group">
+                                <label>Y Offset</label>
+                                <div class="control-row">
+                                    <input type="range" id="shadowY" min="-50" max="50" value="0">
+                                    <input type="number" id="shadowYValue" class="value-input" value="0">
+                                </div>
+                            </div>
+                            <div class="layer-property-group">
+                                <label>Blur</label>
+                                <div class="control-row">
+                                    <input type="range" id="shadowBlur" min="0" max="100" value="10">
+                                    <input type="number" id="shadowBlurValue" class="value-input" value="10">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>Saved Gradients:</label>
+                            <select id="savedGradients"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="docked-panel settings-panel collapsed">
+                <div class="panel-header">
+                    <span class="collapse-toggle">+</span><h3>Settings</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="panel-content">
+                    <button id="saveSettings">Save Settings</button>
+                    <input type="file" id="loadSettingsInput" accept=".json" style="display: none;">
+                    <button id="loadSettings">Load Settings</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Viewport -->
         <div class="main-viewport">
             <div class="viewport-scene">
             </div>
         </div>
 
-        <!-- Floating Control Panels -->
-
-        <!-- Transform Controls Panel -->
-        <div class="floating-panel transform-panel">
-            <div class="panel-header collapsible">
-                <span class="collapse-toggle">-</span><h3>Transform Controls</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="panel-content">
-                <!-- Translation Controls -->
-                <div class="control-group">
-                    <h4>Translation</h4>
-                    <div class="axis-control">
-                        <label>X: <input type="number" id="translateXValue" class="value-input" step="1" value="0">px</label>
-                        <input type="range" id="translateX" min="-200" max="200" value="0">
-                    </div>
-                    <div class="axis-control">
-                        <label>Y: <input type="number" id="translateYValue" class="value-input" step="1" value="0">px</label>
-                        <input type="range" id="translateY" min="-200" max="200" value="0">
-                    </div>
-                    <div class="axis-control">
-                        <label>Z: <input type="number" id="translateZValue" class="value-input" step="1" value="0">px</label>
-                        <input type="range" id="translateZ" min="-200" max="200" value="0">
-                    </div>
+        <!-- Right Sidebar -->
+        <div class="sidebar sidebar-right">
+            <!-- Gradient Editor Panel -->
+            <div class="docked-panel gradient-panel collapsed">
+                <div class="panel-header">
+                    <span class="collapse-toggle">+</span><h3>Gradient Editor</h3>
+                    <button class="close-btn">&times;</button>
                 </div>
-
-                <!-- Scale Controls -->
-                <div class="control-group">
-                    <h4>Scale</h4>
-                    <div class="axis-control">
-                        <label>X: <input type="number" id="scaleXValue" class="value-input" step="0.1" value="1"></label>
-                        <input type="range" id="scaleX" min="0.1" max="3" step="0.1" value="1">
-                    </div>
-                    <div class="axis-control">
-                        <label>Y: <input type="number" id="scaleYValue" class="value-input" step="0.1" value="1"></label>
-                        <input type="range" id="scaleY" min="0.1" max="3" step="0.1" value="1">
-                    </div>
-                    <div class="axis-control">
-                        <label>Z: <input type="number" id="scaleZValue" class="value-input" step="0.1" value="1"></label>
-                        <input type="range" id="scaleZ" min="0.1" max="3" step="0.1" value="1">
-                    </div>
-                </div>
-
-                <!-- Rotation Controls -->
-                <div class="control-group">
-                    <h4>Rotation</h4>
-                    <div class="axis-control">
-                        <label>X: <input type="number" id="rotateXValue" class="value-input" step="1" value="0">°</label>
-                        <input type="range" id="rotateX" min="-360" max="360" value="0">
-                    </div>
-                    <div class="axis-control">
-                        <label>Y: <input type="number" id="rotateYValue" class="value-input" step="1" value="0">°</label>
-                        <input type="range" id="rotateY" min="-360" max="360" value="0">
-                    </div>
-                    <div class="axis-control">
-                        <label>Z: <input type="number" id="rotateZValue" class="value-input" step="1" value="0">°</label>
-                        <input type="range" id="rotateZ" min="-360" max="360" value="0">
+                <div class="panel-content">
+                    <div class="gradient-preview" id="gradientPreview"></div>
+                    <div class="gradient-controls">
+                        <label>Gradient Type:
+                            <select id="gradientType">
+                                <option value="linear">Linear</option>
+                                <option value="radial">Radial</option>
+                                <option value="conic">Conic</option>
+                            </select>
+                        </label>
+                        <div class="color-stops" id="colorStopsContainer">
+                            <!-- Color stops will be dynamically generated here -->
+                        </div>
+                        <button id="addColorStop">Add Color Stop</button>
+                        <button id="saveGradient">Save Gradient</button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Gradient Editor Panel -->
-        <div class="floating-panel gradient-panel collapsed">
-            <div class="panel-header collapsible">
-                <span class="collapse-toggle">+</span><h3>Gradient Editor</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="panel-content">
-                <div class="gradient-preview" id="gradientPreview"></div>
-                <div class="gradient-controls">
-                    <label>Gradient Type:
-                        <select id="gradientType">
-                            <option value="linear">Linear</option>
-                            <option value="radial">Radial</option>
-                        </select>
-                    </label>
-                    <div class="color-stops" id="colorStopsContainer">
-                        <!-- Color stops will be dynamically generated here -->
-                    </div>
-                    <button id="addColorStop">Add Color Stop</button>
-                    <button id="saveGradient">Save Gradient</button>
+            <!-- Animation Controls -->
+            <div class="docked-panel animation-panel collapsed">
+                <div class="panel-header">
+                    <span class="collapse-toggle">+</span><h3>Animation</h3>
+                    <button class="close-btn">&times;</button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Layer Manager Panel -->
-        <div class="floating-panel layer-panel">
-            <div class="panel-header collapsible">
-                <span class="collapse-toggle">-</span><h3>Layer Manager</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="panel-content">
-                <div class="layer-list">
-                </div>
-                <button id="addLayer">Add Layer</button>
-                <div class="layer-properties">
-                    <h4>Layer Properties</h4>
-                    <div class="layer-property-group">
-                        <label>Opacity</label>
-                        <div class="control-row">
-                            <input type="range" id="opacity" min="0" max="1" step="0.01" value="1">
-                            <input type="number" id="opacityValue" class="value-input" step="0.01" min="0" max="1" value="1">
-                        </div>
-                    </div>
-                    <div class="layer-property-group">
-                        <label>Width</label>
-                        <div class="control-row">
-                            <input type="range" id="width" min="10" max="500" value="200">
-                            <input type="number" id="widthValue" class="value-input" step="1" value="200">
-                        </div>
-                    </div>
-                    <div class="layer-property-group">
-                        <label>Height</label>
-                        <div class="control-row">
-                            <input type="range" id="height" min="10" max="500" value="200">
-                            <input type="number" id="heightValue" class="value-input" step="1" value="200">
-                        </div>
-                    </div>
-                    <div class="control-group shadow-control-group">
-                        <div class="shadow-header">
-                            <label>Shadow</label>
-                            <input type="checkbox" id="shadowEnabled" title="Enable/Disable Shadow">
-                            <input type="color" id="shadowColor" value="#000000" title="Shadow Color">
-                        </div>
-                        <div class="layer-property-group">
-                            <label>X Offset</label>
-                            <div class="control-row">
-                                <input type="range" id="shadowX" min="-50" max="50" value="0">
-                                <input type="number" id="shadowXValue" class="value-input" value="0">
-                            </div>
-                        </div>
-                        <div class="layer-property-group">
-                            <label>Y Offset</label>
-                            <div class="control-row">
-                                <input type="range" id="shadowY" min="-50" max="50" value="0">
-                                <input type="number" id="shadowYValue" class="value-input" value="0">
-                            </div>
-                        </div>
-                        <div class="layer-property-group">
-                            <label>Blur</label>
-                            <div class="control-row">
-                                <input type="range" id="shadowBlur" min="0" max="100" value="10">
-                                <input type="number" id="shadowBlurValue" class="value-input" value="10">
-                            </div>
-                        </div>
+                <div class="panel-content">
+                    <div class="control-group">
+                        <label>Duration: <span id="durationValue">2</span>s</label>
+                        <input type="range" id="duration" min="0.1" max="10" step="0.1" value="2">
                     </div>
                     <div class="control-group">
-                        <label>Saved Gradients:</label>
-                        <select id="savedGradients"></select>
+                        <label>Delay: <span id="delayValue">0</span>s</label>
+                        <input type="range" id="delay" min="0" max="5" step="0.1" value="0">
                     </div>
+                    <div class="control-group">
+                        <label>Iteration Count:
+                            <select id="iterationCount">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="infinite">Infinite</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="control-group">
+                        <label>Direction:
+                            <select id="direction">
+                                <option value="normal">Normal</option>
+                                <option value="reverse">Reverse</option>
+                                <option value="alternate">Alternate</option>
+                                <option value="alternate-reverse">Alternate Reverse</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="control-group">
+                        <label>Timing Function:
+                            <select id="timingFunction">
+                                <option value="ease">Ease</option>
+                                <option value="linear">Linear</option>
+                                <option value="ease-in">Ease In</option>
+                                <option value="ease-out">Ease Out</option>
+                                <option value="ease-in-out">Ease In Out</option>
+                            </select>
+                        </label>
+                    </div>
+                    <button id="playAnimation">Play Animation</button>
+                    <button id="pauseAnimation">Pause Animation</button>
+                    <button id="resetAnimation">Reset</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Animation Controls -->
-        <div class="floating-panel animation-panel collapsed">
-            <div class="panel-header collapsible">
-                <span class="collapse-toggle">+</span><h3>Animation</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="panel-content">
-                <div class="control-group">
-                    <label>Duration: <span id="durationValue">2</span>s</label>
-                    <input type="range" id="duration" min="0.1" max="10" step="0.1" value="2">
+            <!-- CSS Output Panel -->
+            <div class="docked-panel css-panel collapsed">
+                <div class="panel-header">
+                    <span class="collapse-toggle">+</span><h3>Generated CSS</h3>
+                    <button class="close-btn">&times;</button>
                 </div>
-                <div class="control-group">
-                    <label>Delay: <span id="delayValue">0</span>s</label>
-                    <input type="range" id="delay" min="0" max="5" step="0.1" value="0">
+                <div class="panel-content">
+                    <textarea id="cssOutput" readonly></textarea>
+                    <button id="copyCSS">Copy CSS</button>
                 </div>
-                <div class="control-group">
-                    <label>Iteration Count:
-                        <select id="iterationCount">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="infinite">Infinite</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="control-group">
-                    <label>Direction:
-                        <select id="direction">
-                            <option value="normal">Normal</option>
-                            <option value="reverse">Reverse</option>
-                            <option value="alternate">Alternate</option>
-                            <option value="alternate-reverse">Alternate Reverse</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="control-group">
-                    <label>Timing Function:
-                        <select id="timingFunction">
-                            <option value="ease">Ease</option>
-                            <option value="linear">Linear</option>
-                            <option value="ease-in">Ease In</option>
-                            <option value="ease-out">Ease Out</option>
-                            <option value="ease-in-out">Ease In Out</option>
-                        </select>
-                    </label>
-                </div>
-                <button id="playAnimation">Play Animation</button>
-                <button id="pauseAnimation">Pause Animation</button>
-                <button id="resetAnimation">Reset</button>
-            </div>
-        </div>
-
-        <!-- Settings Panel -->
-        <div class="floating-panel settings-panel collapsed">
-            <div class="panel-header collapsible">
-                <span class="collapse-toggle">+</span><h3>Settings</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="panel-content">
-                <button id="saveSettings">Save Settings</button>
-                <input type="file" id="loadSettingsInput" accept=".json" style="display: none;">
-                <button id="loadSettings">Load Settings</button>
-            </div>
-        </div>
-
-        <!-- CSS Output Panel -->
-        <div class="floating-panel css-panel collapsed">
-            <div class="panel-header collapsible">
-                <span class="collapse-toggle">+</span><h3>Generated CSS</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="panel-content">
-                <textarea id="cssOutput" readonly></textarea>
-                <button id="copyCSS">Copy CSS</button>
             </div>
         </div>
     </div>
@@ -864,7 +851,6 @@ class CSSAnimationViewport {
     init() {
         this.addLayer('Base Layer', false);
         this.setupEventListeners();
-        this.makePanelsDraggable();
         this.updateSavedGradientsUI();
     }
 
@@ -961,14 +947,14 @@ class CSSAnimationViewport {
         // Panel close buttons
         document.querySelectorAll('.close-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.target.closest('.floating-panel').style.display = 'none';
+                e.target.closest('.docked-panel').style.display = 'none';
             });
         });
 
         // Panel collapse/expand
         document.querySelectorAll('.collapse-toggle').forEach(toggle => {
             toggle.addEventListener('click', (e) => {
-                const panel = toggle.closest('.floating-panel');
+                const panel = toggle.closest('.docked-panel');
                 panel.classList.toggle('collapsed');
                 toggle.textContent = panel.classList.contains('collapsed') ? '+' : '-';
             });
@@ -1022,6 +1008,7 @@ class CSSAnimationViewport {
         // Angle control could be added here in the future
         this.updateElement(layer);
         this.updateCSS();
+        this.updateGradientPreview();
     }
 
     updateGradientStop(index, property, value) {
@@ -1033,6 +1020,7 @@ class CSSAnimationViewport {
             stop[property] = value;
             this.updateElement(layer);
             this.updateCSS();
+            this.updateGradientPreview();
         }
     }
 
@@ -1057,6 +1045,7 @@ class CSSAnimationViewport {
         this.renderColorStopsUI(stops);
         this.updateElement(layer);
         this.updateCSS();
+        this.updateGradientPreview();
     }
 
     removeGradientStop(index) {
@@ -1073,6 +1062,7 @@ class CSSAnimationViewport {
         this.renderColorStopsUI(stops);
         this.updateElement(layer);
         this.updateCSS();
+        this.updateGradientPreview();
     }
 
     renderColorStopsUI(stops) {
@@ -1110,8 +1100,10 @@ class CSSAnimationViewport {
 
         if (gradient.type === 'linear') {
             return `linear-gradient(45deg, ${colorStopsString})`;
-        } else { // radial
+        } else if (gradient.type === 'radial') {
             return `radial-gradient(circle, ${colorStopsString})`;
+        } else { // conic
+            return `conic-gradient(${colorStopsString})`;
         }
     }
 
@@ -1312,6 +1304,7 @@ class CSSAnimationViewport {
         }
         document.getElementById('gradientType').value = layer.gradient.type;
         this.renderColorStopsUI(layer.gradient.stops);
+        this.updateGradientPreview();
 
         document.getElementById('opacity').value = layer.opacity;
         document.getElementById('opacityValue').value = layer.opacity;
@@ -1404,31 +1397,6 @@ class CSSAnimationViewport {
         }, 1500);
     }
 
-    makePanelsDraggable() {
-        const panels = document.querySelectorAll('.floating-panel');
-        panels.forEach(panel => {
-            const header = panel.querySelector('.panel-header');
-            let isDragging = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
-
-            header.addEventListener('mousedown', e => {
-                initialX = e.clientX - xOffset;
-                initialY = e.clientY - yOffset;
-                if (e.target === header || header.contains(e.target)) isDragging = true;
-            });
-            document.addEventListener('mousemove', e => {
-                if (isDragging) {
-                    e.preventDefault();
-                    currentX = e.clientX - initialX;
-                    currentY = e.clientY - initialY;
-                    xOffset = currentX;
-                    yOffset = currentY;
-                    panel.style.transform = `translate(${currentX}px, ${currentY}px)`;
-                }
-            });
-            document.addEventListener('mouseup', () => isDragging = false);
-        });
-    }
-
     saveGradient() {
         const name = prompt('Enter a name for the gradient:');
         if (name && this.activeLayerId) {
@@ -1457,6 +1425,14 @@ class CSSAnimationViewport {
         this.updateElement(layer);
         this.updateControlsToLayer(layer);
         this.updateCSS();
+        this.updateGradientPreview();
+    }
+
+    updateGradientPreview() {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        const gradientString = this.generateGradientString(layer.gradient);
+        document.getElementById('gradientPreview').style.background = gradientString;
     }
 }
 
