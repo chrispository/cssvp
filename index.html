@@ -4,7 +4,584 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSS Animation Viewport</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+/* CSS Animation Viewport - Light Theme Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.viewport-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Main Viewport */
+.main-viewport {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+}
+
+.viewport-scene {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    transform-style: preserve-3d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.animated-rectangle {
+    width: 200px;
+    height: 200px;
+    position: absolute;
+    background: linear-gradient(45deg, #3498db, #e74c3c);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+}
+
+/* Floating Panels */
+.floating-panel {
+    position: absolute;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: 280px;
+    z-index: 1000;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: move;
+}
+
+.panel-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-left: 8px;
+}
+
+.collapse-toggle {
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.collapse-toggle:hover {
+    background: #f0f0f0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #7f8c8d;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: #f0f0f0;
+    color: #e74c3c;
+}
+
+.panel-header.collapsible {
+    cursor: move; /* Change cursor to move for the whole header */
+}
+
+.panel-content {
+    padding: 20px;
+    transition: all 0.3s ease-in-out;
+}
+
+.floating-panel.collapsed .panel-content {
+    display: none;
+}
+
+/* Panel Positioning */
+.transform-panel {
+    top: 20px;
+    left: 20px;
+}
+
+.gradient-panel {
+    top: 20px;
+    right: 20px;
+}
+
+.layer-panel {
+    bottom: 20px;
+    left: 20px;
+}
+
+.settings-panel {
+    top: 100px; /* Positioned below the gradient editor */
+    right: 20px;
+}
+
+.animation-panel {
+    top: 200px; /* Positioned below the settings panel */
+    right: 20px;
+}
+
+.css-panel {
+    bottom: 20px;
+    right: 20px;
+}
+
+
+/* Control Groups */
+.control-group {
+    margin-bottom: 20px;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-group h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 12px;
+}
+
+.axis-control {
+    margin-bottom: 12px;
+}
+
+.axis-control label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+.axis-control input[type="range"] {
+    width: 100%;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.axis-control .value-input {
+    width: 60px;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    -moz-appearance: textfield;
+}
+
+.axis-control .value-input::-webkit-outer-spin-button,
+.axis-control .value-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+.axis-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #3498db;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.axis-control input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #3498db;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+/* Gradient Editor */
+.gradient-preview {
+    width: 100%;
+    height: 60px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border: 1px solid #e0e0e0;
+}
+
+.gradient-controls label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.gradient-controls select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.color-stops {
+    margin-bottom: 12px;
+}
+
+.color-stop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.color-stop input[type="color"] {
+    width: 40px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.color-stop input[type="range"] {
+    flex: 1;
+}
+
+.color-stop .remove-stop-btn {
+    background: none;
+    border: 1px solid #ddd;
+    color: #e74c3c;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 22px;
+    padding: 0;
+    margin-left: 4px;
+    transition: all 0.2s ease;
+}
+
+.color-stop .remove-stop-btn:hover {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.alpha-control {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.alpha-control label {
+    font-size: 11px;
+    margin-bottom: 0;
+    color: #777;
+}
+
+.alpha-control input[type="range"] {
+    width: 100%;
+    height: 3px;
+}
+
+button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background: #2980b9;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+/* Layer Manager */
+.layer-list {
+    margin-bottom: 12px;
+}
+
+.layer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.layer-item.active {
+    background: #e3f2fd;
+    border-left: 3px solid #3498db;
+}
+
+.layer-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.layer-controls button {
+    padding: 4px 8px;
+    font-size: 12px;
+    background: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.layer-controls button:hover {
+    background: #f0f0f0;
+}
+
+.layer-properties {
+    margin-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px;
+}
+
+.layer-properties h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 12px;
+}
+
+.layer-property-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.layer-property-group label {
+    font-size: 13px;
+    color: #555;
+    flex-basis: 60px;
+}
+
+.layer-property-group .control-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.layer-property-group input[type="range"] {
+    flex: 1;
+}
+
+.layer-property-group .value-input {
+    width: 60px;
+}
+
+.shadow-control-group {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+.shadow-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.shadow-header label {
+    font-weight: 600;
+    color: #34495e;
+}
+
+.shadow-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.shadow-controls input[type="checkbox"] {
+    margin-right: 4px;
+}
+
+.shadow-controls input[type="color"] {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.shadow-controls input[type="number"] {
+    width: 50px;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    -moz-appearance: textfield;
+}
+
+#savedGradients {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* CSS Output */
+#cssOutput {
+    width: 100%;
+    min-height: 200px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    resize: vertical;
+    background: #f8f9fa;
+}
+
+#copyCSS {
+    width: 100%;
+    margin-top: 12px;
+    background: #27ae60;
+}
+
+#copyCSS:hover {
+    background: #229954;
+}
+
+/* Animation Controls */
+#playAnimation {
+    background: #27ae60;
+}
+
+#playAnimation:hover {
+    background: #229954;
+}
+
+#pauseAnimation {
+    background: #f39c12;
+}
+
+#pauseAnimation:hover {
+    background: #e67e22;
+}
+
+#resetAnimation {
+    background: #e74c3c;
+}
+
+#resetAnimation:hover {
+    background: #c0392b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .floating-panel {
+        position: fixed;
+        width: 90%;
+        max-width: 320px;
+    }
+
+    .transform-panel,
+    .gradient-panel,
+    .layer-panel,
+    .css-panel,
+    .animation-panel {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Dragging States */
+.floating-panel.dragging {
+    opacity: 0.8;
+    z-index: 9999;
+}
+
+/* Focus States */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+    </style>
 </head>
 <body>
     <div class="viewport-container">
@@ -19,7 +596,7 @@
         <!-- Transform Controls Panel -->
         <div class="floating-panel transform-panel">
             <div class="panel-header collapsible">
-                <h3>Transform Controls</h3>
+                <span class="collapse-toggle">-</span><h3>Transform Controls</h3>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="panel-content">
@@ -79,7 +656,7 @@
         <!-- Gradient Editor Panel -->
         <div class="floating-panel gradient-panel collapsed">
             <div class="panel-header collapsible">
-                <h3>Gradient Editor</h3>
+                <span class="collapse-toggle">+</span><h3>Gradient Editor</h3>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="panel-content">
@@ -103,7 +680,7 @@
         <!-- Layer Manager Panel -->
         <div class="floating-panel layer-panel">
             <div class="panel-header collapsible">
-                <h3>Layer Manager</h3>
+                <span class="collapse-toggle">-</span><h3>Layer Manager</h3>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="panel-content">
@@ -116,7 +693,7 @@
                         <label>Opacity</label>
                         <div class="control-row">
                             <input type="range" id="opacity" min="0" max="1" step="0.01" value="1">
-                            <span id="opacityValue" class="value-display">1</span>
+                            <input type="number" id="opacityValue" class="value-input" step="0.01" min="0" max="1" value="1">
                         </div>
                     </div>
                     <div class="layer-property-group">
@@ -133,14 +710,32 @@
                             <input type="number" id="heightValue" class="value-input" step="1" value="200">
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label>Shadow:</label>
-                        <div class="shadow-controls">
-                            <input type="checkbox" id="shadowEnabled">
-                            <input type="color" id="shadowColor" value="#000000">
-                            <input type="number" id="shadowX" placeholder="X" value="0">
-                            <input type="number" id="shadowY" placeholder="Y" value="0">
-                            <input type="number" id="shadowBlur" placeholder="Blur" value="10">
+                    <div class="control-group shadow-control-group">
+                        <div class="shadow-header">
+                            <label>Shadow</label>
+                            <input type="checkbox" id="shadowEnabled" title="Enable/Disable Shadow">
+                            <input type="color" id="shadowColor" value="#000000" title="Shadow Color">
+                        </div>
+                        <div class="layer-property-group">
+                            <label>X Offset</label>
+                            <div class="control-row">
+                                <input type="range" id="shadowX" min="-50" max="50" value="0">
+                                <input type="number" id="shadowXValue" class="value-input" value="0">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Y Offset</label>
+                            <div class="control-row">
+                                <input type="range" id="shadowY" min="-50" max="50" value="0">
+                                <input type="number" id="shadowYValue" class="value-input" value="0">
+                            </div>
+                        </div>
+                        <div class="layer-property-group">
+                            <label>Blur</label>
+                            <div class="control-row">
+                                <input type="range" id="shadowBlur" min="0" max="100" value="10">
+                                <input type="number" id="shadowBlurValue" class="value-input" value="10">
+                            </div>
                         </div>
                     </div>
                     <div class="control-group">
@@ -154,7 +749,7 @@
         <!-- Animation Controls -->
         <div class="floating-panel animation-panel collapsed">
             <div class="panel-header collapsible">
-                <h3>Animation</h3>
+                <span class="collapse-toggle">+</span><h3>Animation</h3>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="panel-content">
@@ -206,7 +801,7 @@
         <!-- Settings Panel -->
         <div class="floating-panel settings-panel collapsed">
             <div class="panel-header collapsible">
-                <h3>Settings</h3>
+                <span class="collapse-toggle">+</span><h3>Settings</h3>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="panel-content">
@@ -219,7 +814,7 @@
         <!-- CSS Output Panel -->
         <div class="floating-panel css-panel collapsed">
             <div class="panel-header collapsible">
-                <h3>Generated CSS</h3>
+                <span class="collapse-toggle">+</span><h3>Generated CSS</h3>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="panel-content">
@@ -229,6 +824,789 @@
         </div>
     </div>
 
-    <script src="viewport.js"></script>
+    <script>
+// CSS Animation Viewport - Interactive JavaScript Engine
+
+class CSSAnimationViewport {
+    constructor() {
+        this.viewportScene = document.querySelector('.viewport-scene');
+        this.cssOutput = document.getElementById('cssOutput');
+        this.layerList = document.querySelector('.layer-list');
+
+        this.layers = {};
+        this.activeLayerId = null;
+        this.savedGradients = {
+            'Sunset': {
+                "type": "linear", "angle": 45, "stops": [
+                    { "color": "#ff6b6b", "alpha": 1, "position": 0 },
+                    { "color": "#feca57", "alpha": 1, "position": 100 }
+                ]
+            },
+            'Ocean': {
+                "type": "linear", "angle": 45, "stops": [
+                    { "color": "#48dbfb", "alpha": 1, "position": 0 },
+                    { "color": "#1dd1a1", "alpha": 1, "position": 100 }
+                ]
+            },
+            'Grape': {
+                "type": "linear", "angle": 45, "stops": [
+                    { "color": "#5f27cd", "alpha": 1, "position": 0 },
+                    { "color": "#c56cf0", "alpha": 1, "position": 100 }
+                ]
+            }
+        };
+
+        this.animation = {};
+
+        this.init();
+    }
+
+    init() {
+        this.addLayer('Base Layer', false);
+        this.setupEventListeners();
+        this.makePanelsDraggable();
+        this.updateSavedGradientsUI();
+    }
+
+    setupEventListeners() {
+        // Transform controls
+        document.getElementById('translateX').addEventListener('input', (e) => this.updateTransform('translateX', e.target.value));
+        document.getElementById('translateY').addEventListener('input', (e) => this.updateTransform('translateY', e.target.value));
+        document.getElementById('translateZ').addEventListener('input', (e) => this.updateTransform('translateZ', e.target.value));
+
+        document.getElementById('scaleX').addEventListener('input', (e) => this.updateTransform('scaleX', e.target.value));
+        document.getElementById('scaleY').addEventListener('input', (e) => this.updateTransform('scaleY', e.target.value));
+        document.getElementById('scaleZ').addEventListener('input', (e) => this.updateTransform('scaleZ', e.target.value));
+
+        document.getElementById('rotateX').addEventListener('input', (e) => this.updateTransform('rotateX', e.target.value));
+        document.getElementById('rotateY').addEventListener('input', (e) => this.updateTransform('rotateY', e.target.value));
+        document.getElementById('rotateZ').addEventListener('input', (e) => this.updateTransform('rotateZ', e.target.value));
+
+        // Transform value inputs
+        document.getElementById('translateXValue').addEventListener('input', (e) => this.updateTransform('translateX', e.target.value));
+        document.getElementById('translateYValue').addEventListener('input', (e) => this.updateTransform('translateY', e.target.value));
+        document.getElementById('translateZValue').addEventListener('input', (e) => this.updateTransform('translateZ', e.target.value));
+
+        document.getElementById('scaleXValue').addEventListener('input', (e) => this.updateTransform('scaleX', e.target.value));
+        document.getElementById('scaleYValue').addEventListener('input', (e) => this.updateTransform('scaleY', e.target.value));
+        document.getElementById('scaleZValue').addEventListener('input', (e) => this.updateTransform('scaleZ', e.target.value));
+
+        document.getElementById('rotateXValue').addEventListener('input', (e) => this.updateTransform('rotateX', e.target.value));
+        document.getElementById('rotateYValue').addEventListener('input', (e) => this.updateTransform('rotateY', e.target.value));
+        document.getElementById('rotateZValue').addEventListener('input', (e) => this.updateTransform('rotateZ', e.target.value));
+
+        // Animation controls
+        document.getElementById('duration').addEventListener('input', (e) => this.updateAnimation('duration', e.target.value));
+        document.getElementById('delay').addEventListener('input', (e) => this.updateAnimation('delay', e.target.value));
+        document.getElementById('iterationCount').addEventListener('change', (e) => this.updateAnimation('iterationCount', e.target.value));
+        document.getElementById('direction').addEventListener('change', (e) => this.updateAnimation('direction', e.target.value));
+        document.getElementById('timingFunction').addEventListener('change', (e) => this.updateAnimation('timingFunction', e.target.value));
+
+        // Gradient controls
+        document.getElementById('gradientType').addEventListener('change', () => this.updateGradient());
+        document.getElementById('colorStopsContainer').addEventListener('input', e => {
+            const target = e.target;
+            const stopElement = target.closest('.color-stop');
+            if (!stopElement) return;
+
+            const index = parseInt(stopElement.dataset.index, 10);
+            const property = target.dataset.property; // 'color', 'position', 'alpha'
+
+            if (property) {
+                this.updateGradientStop(index, property, target.value);
+            }
+        });
+        document.getElementById('colorStopsContainer').addEventListener('click', e => {
+            if (e.target.classList.contains('remove-stop-btn')) {
+                const stopElement = e.target.closest('.color-stop');
+                const index = parseInt(stopElement.dataset.index, 10);
+                this.removeGradientStop(index);
+            }
+        });
+
+        document.getElementById('addColorStop').addEventListener('click', () => this.addGradientStop());
+        document.getElementById('saveGradient').addEventListener('click', () => this.saveGradient());
+        document.getElementById('savedGradients').addEventListener('change', (e) => this.applySavedGradient(e.target.value));
+
+
+        // Layer Properties
+        document.getElementById('opacity').addEventListener('input', (e) => this.updateLayerProperty('opacity', e.target.value));
+        document.getElementById('opacityValue').addEventListener('input', (e) => this.updateLayerProperty('opacity', e.target.value));
+        document.getElementById('width').addEventListener('input', (e) => this.updateLayerProperty('width', e.target.value));
+        document.getElementById('widthValue').addEventListener('input', (e) => this.updateLayerProperty('width', e.target.value));
+        document.getElementById('height').addEventListener('input', (e) => this.updateLayerProperty('height', e.target.value));
+        document.getElementById('heightValue').addEventListener('input', (e) => this.updateLayerProperty('height', e.target.value));
+
+        document.getElementById('shadowEnabled').addEventListener('change', (e) => this.updateShadow('enabled', e.target.checked));
+        document.getElementById('shadowColor').addEventListener('input', (e) => this.updateShadow('color', e.target.value));
+        document.getElementById('shadowX').addEventListener('input', (e) => this.updateShadow('x', e.target.value));
+        document.getElementById('shadowXValue').addEventListener('input', (e) => this.updateShadow('x', e.target.value));
+        document.getElementById('shadowY').addEventListener('input', (e) => this.updateShadow('y', e.target.value));
+        document.getElementById('shadowYValue').addEventListener('input', (e) => this.updateShadow('y', e.target.value));
+        document.getElementById('shadowBlur').addEventListener('input', (e) => this.updateShadow('blur', e.target.value));
+        document.getElementById('shadowBlurValue').addEventListener('input', (e) => this.updateShadow('blur', e.target.value));
+
+
+        // Animation buttons
+        document.getElementById('playAnimation').addEventListener('click', () => this.playAnimation());
+        document.getElementById('pauseAnimation').addEventListener('click', () => this.pauseAnimation());
+        document.getElementById('resetAnimation').addEventListener('click', () => this.resetAnimation());
+
+        // Copy CSS
+        document.getElementById('copyCSS').addEventListener('click', () => this.copyCSS());
+
+        // Layer management
+        document.getElementById('addLayer').addEventListener('click', () => this.addLayer());
+
+        // Panel close buttons
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.target.closest('.floating-panel').style.display = 'none';
+            });
+        });
+
+        // Panel collapse/expand
+        document.querySelectorAll('.collapse-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                const panel = toggle.closest('.floating-panel');
+                panel.classList.toggle('collapsed');
+                toggle.textContent = panel.classList.contains('collapsed') ? '+' : '-';
+            });
+        });
+
+        // Settings buttons
+        document.getElementById('saveSettings').addEventListener('click', () => saveSettings());
+        document.getElementById('loadSettings').addEventListener('click', () => document.getElementById('loadSettingsInput').click());
+        document.getElementById('loadSettingsInput').addEventListener('change', (e) => loadSettings(e));
+    }
+
+    updateTransform(property, value) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        const parsedValue = parseFloat(value);
+
+        if (isNaN(parsedValue)) return;
+
+        layer.transforms[property] = parsedValue;
+        this.updateElement(layer);
+        this.updateCSS();
+
+        // Sync the corresponding input elements
+        const rangeInput = document.getElementById(property);
+        const valueInput = document.getElementById(`${property}Value`);
+
+        if (rangeInput.value !== value) {
+            rangeInput.value = value;
+        }
+        if (valueInput.value !== value) {
+            valueInput.value = value;
+        }
+    }
+
+    updateAnimation(property, value) {
+        this.animation[property] = value;
+        this.updateCSS();
+
+        const displayElement = document.getElementById(`${property}Value`);
+        if (displayElement) {
+            displayElement.textContent = value;
+        }
+    }
+
+    // --- Gradient Management ---
+
+    updateGradient() {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        layer.gradient.type = document.getElementById('gradientType').value;
+        // Angle control could be added here in the future
+        this.updateElement(layer);
+        this.updateCSS();
+    }
+
+    updateGradientStop(index, property, value) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        const stop = layer.gradient.stops[index];
+
+        if (stop) {
+            stop[property] = value;
+            this.updateElement(layer);
+            this.updateCSS();
+        }
+    }
+
+    addGradientStop() {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        const stops = layer.gradient.stops;
+
+        // Add new stop at a reasonable position
+        const lastStop = stops[stops.length - 1];
+        const newPosition = Math.min(100, lastStop.position + 10);
+
+        stops.push({
+            color: '#ffffff',
+            alpha: 1,
+            position: newPosition
+        });
+
+        // Re-sort stops by position
+        stops.sort((a, b) => a.position - b.position);
+
+        this.renderColorStopsUI(stops);
+        this.updateElement(layer);
+        this.updateCSS();
+    }
+
+    removeGradientStop(index) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        const stops = layer.gradient.stops;
+
+        if (stops.length <= 2) {
+            alert('A gradient must have at least two color stops.');
+            return;
+        }
+
+        stops.splice(index, 1);
+        this.renderColorStopsUI(stops);
+        this.updateElement(layer);
+        this.updateCSS();
+    }
+
+    renderColorStopsUI(stops) {
+        const container = document.getElementById('colorStopsContainer');
+        container.innerHTML = ''; // Clear existing stops
+
+        stops.forEach((stop, index) => {
+            const stopElement = document.createElement('div');
+            stopElement.className = 'color-stop';
+            stopElement.dataset.index = index;
+
+            stopElement.innerHTML = `
+                <input type="color" data-property="color" value="${stop.color}">
+                <div class="alpha-control">
+                    <label>Alpha: ${stop.alpha}</label>
+                    <input type="range" data-property="alpha" min="0" max="1" step="0.01" value="${stop.alpha}">
+                </div>
+                <div class="alpha-control">
+                    <label>Pos: ${stop.position}%</label>
+                    <input type="range" data-property="position" min="0" max="100" value="${stop.position}">
+                </div>
+                <button class="remove-stop-btn" title="Remove color stop">×</button>
+            `;
+            container.appendChild(stopElement);
+        });
+    }
+
+    generateGradientString(gradient) {
+        const colorStopsString = gradient.stops
+            .map(stop => {
+                const rgba = this.hexToRgba(stop.color, stop.alpha);
+                return `${rgba} ${stop.position}%`;
+            })
+            .join(', ');
+
+        if (gradient.type === 'linear') {
+            return `linear-gradient(45deg, ${colorStopsString})`;
+        } else { // radial
+            return `radial-gradient(circle, ${colorStopsString})`;
+        }
+    }
+
+    hexToRgba(hex, alpha = 1) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // --- End Gradient Management ---
+
+    updateLayerProperty(property, value) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        layer[property] = value;
+        this.updateElement(layer);
+        this.updateCSS();
+
+        // Sync slider and number inputs
+        const valueInput = document.getElementById(`${property}Value`);
+        const rangeInput = document.getElementById(property);
+        if (valueInput && rangeInput) {
+            if (valueInput.value !== value) {
+                valueInput.value = value;
+            }
+            if (rangeInput.value !== value) {
+                rangeInput.value = value;
+            }
+        }
+    }
+
+    updateShadow(property, value) {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        layer.shadow[property] = value;
+        this.updateElement(layer);
+        this.updateCSS();
+
+        // Sync inputs
+        const propCapitalized = property.charAt(0).toUpperCase() + property.slice(1);
+        const valueInput = document.getElementById(`shadow${propCapitalized}Value`);
+        const rangeInput = document.getElementById(`shadow${propCapitalized}`);
+        if (valueInput && rangeInput) {
+            if (valueInput.value !== value) valueInput.value = value;
+            if (rangeInput.value !== value) rangeInput.value = value;
+        }
+    }
+
+
+    updateElement(layer) {
+        const transform = `
+            translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)
+            scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})
+            rotateX(${layer.transforms.rotateX}deg)
+            rotateY(${layer.transforms.rotateY}deg)
+            rotateZ(${layer.transforms.rotateZ}deg)
+        `;
+        layer.element.style.transform = transform;
+        layer.element.style.width = `${layer.width}px`;
+        layer.element.style.height = `${layer.height}px`;
+
+        const gradient = this.generateGradientString(layer.gradient);
+        layer.element.style.background = gradient;
+
+        layer.element.style.opacity = layer.opacity;
+        if (layer.shadow.enabled) {
+            layer.element.style.boxShadow = `${layer.shadow.x}px ${layer.shadow.y}px ${layer.shadow.blur}px ${layer.shadow.color}`;
+        } else {
+            layer.element.style.boxShadow = 'none';
+        }
+    }
+
+    updateCSS() {
+        let css = '/* CSS Animation Generated by CSS Animation Viewport */\n';
+        for (const layerId in this.layers) {
+            const layer = this.layers[layerId];
+            const gradientString = this.generateGradientString(layer.gradient);
+            css += `\n#${layer.id} {\n    width: ${layer.width}px;\n    height: ${layer.height}px;\n    position: absolute;\n    background: ${gradientString};\n    border-radius: 8px;\n    opacity: ${layer.opacity};\n    box-shadow: ${layer.shadow.enabled ? `${layer.shadow.x}px ${layer.shadow.y}px ${layer.shadow.blur}px ${layer.shadow.color}` : 'none'};\n    transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)\n               scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})\n               rotateX(${layer.transforms.rotateX}deg)\n               rotateY(${layer.transforms.rotateY}deg)\n               rotateZ(${layer.transforms.rotateZ}deg);\n    transition: transform ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s;\n    animation: ${layer.id}-animation ${this.animation.duration || 0}s ${this.animation.timingFunction || 'ease'} ${this.animation.delay || 0}s ${this.animation.iterationCount || 1} ${this.animation.direction || 'normal'};\n}\n\n@keyframes ${layer.id}-animation {\n    from {\n        transform: translate3d(0,0,0) scale3d(1,1,1) rotateX(0) rotateY(0) rotateZ(0);\n    }\n    to {\n        transform: translate3d(${layer.transforms.translateX}px, ${layer.transforms.translateY}px, ${layer.transforms.translateZ}px)\n                   scale3d(${layer.transforms.scaleX}, ${layer.transforms.scaleY}, ${layer.transforms.scaleZ})\n                   rotateX(${layer.transforms.rotateX}deg)\n                   rotateY(${layer.transforms.rotateY}deg)\n                   rotateZ(${layer.transforms.rotateZ}deg);\n    }\n}\n        `.trim() + '\n\n';
+        }
+        this.cssOutput.value = css;
+    }
+
+    addLayer(name, isPrompt = true, sourceLayer = null) {
+        const layerName = isPrompt ? prompt('Enter layer name:', sourceLayer ? `${sourceLayer.name} Copy` : '') : name;
+        if (layerName) {
+            const id = `layer-${Date.now()}`;
+            const newElement = document.createElement('div');
+            newElement.className = 'animated-rectangle';
+            newElement.id = id;
+            this.viewportScene.appendChild(newElement);
+
+            const numLayers = Object.keys(this.layers).length;
+
+            if (sourceLayer) {
+                // Deep copy of sourceLayer
+                this.layers[id] = JSON.parse(JSON.stringify(sourceLayer));
+                this.layers[id].id = id;
+                this.layers[id].name = layerName;
+                this.layers[id].element = newElement;
+                // Offset the copied layer slightly
+                this.layers[id].transforms.translateX += 10;
+                this.layers[id].transforms.translateY += 10;
+            } else {
+                this.layers[id] = {
+                    id: id,
+                    name: layerName,
+                    element: newElement,
+                    visible: true,
+                    opacity: 1,
+                    width: 200,
+                    height: 200,
+                    shadow: {
+                        enabled: false,
+                        color: '#000000',
+                        x: 0,
+                        y: 0,
+                        blur: 10
+                    },
+                    transforms: {
+                        translateX: 10 * numLayers,
+                        translateY: 10 * numLayers,
+                        translateZ: 0,
+                        scaleX: 1,
+                        scaleY: 1,
+                        scaleZ: 1,
+                        rotateX: 45,
+                        rotateY: 0,
+                        rotateZ: -45
+                    },
+                    gradient: {
+                        type: 'linear',
+                        angle: 45,
+                        stops: [
+                            { color: '#3498db', alpha: 1, position: 0 },
+                            { color: '#e74c3c', alpha: 1, position: 100 }
+                        ]
+                    }
+                };
+            }
+
+            this.updateElement(this.layers[id]);
+            this.addLayerToUI(id, layerName);
+            this.setActiveLayer(id);
+            this.updateCSS();
+        }
+    }
+
+    copyLayer(id) {
+        const sourceLayer = this.layers[id];
+        if (sourceLayer) {
+            this.addLayer(null, true, sourceLayer);
+        }
+    }
+
+    addLayerToUI(id, name) {
+        const layerItem = document.createElement('div');
+        layerItem.className = 'layer-item';
+        layerItem.dataset.layer = id;
+        layerItem.innerHTML = `\n            <span>${name}</span>\n            <div class="layer-controls">\n                <button class="copy-btn" title="Copy layer">❐</button>\n                <button class="visibility-btn" title="Toggle visibility">👁</button>\n                <button class="delete-btn" title="Delete layer">×</button>\n            </div>\n        `;
+        this.layerList.appendChild(layerItem);
+
+        layerItem.addEventListener('click', () => this.setActiveLayer(id));
+        layerItem.querySelector('.copy-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.copyLayer(id);
+        });
+        layerItem.querySelector('.visibility-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleLayerVisibility(id);
+        });
+        layerItem.querySelector('.delete-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.deleteLayer(id);
+        });
+    }
+
+    setActiveLayer(id) {
+        if (this.activeLayerId) {
+            const activeLayerElement = document.querySelector(`[data-layer="${this.activeLayerId}"]`);
+            if (activeLayerElement) {
+                activeLayerElement.classList.remove('active');
+            }
+        }
+        this.activeLayerId = id;
+        document.querySelector(`[data-layer="${id}"]`).classList.add('active');
+        this.updateControlsToLayer(this.layers[id]);
+    }
+
+    updateControlsToLayer(layer) {
+        for (const prop in layer.transforms) {
+            const input = document.getElementById(prop);
+            if (input) input.value = layer.transforms[prop];
+            const valueInput = document.getElementById(`${prop}Value`);
+            if (valueInput) {
+                valueInput.value = layer.transforms[prop];
+            }
+        }
+        document.getElementById('gradientType').value = layer.gradient.type;
+        this.renderColorStopsUI(layer.gradient.stops);
+
+        document.getElementById('opacity').value = layer.opacity;
+        document.getElementById('opacityValue').value = layer.opacity;
+        document.getElementById('width').value = layer.width;
+        document.getElementById('widthValue').value = layer.width;
+        document.getElementById('height').value = layer.height;
+        document.getElementById('heightValue').value = layer.height;
+
+        document.getElementById('shadowEnabled').checked = layer.shadow.enabled;
+        document.getElementById('shadowColor').value = layer.shadow.color;
+        document.getElementById('shadowX').value = layer.shadow.x;
+        document.getElementById('shadowXValue').value = layer.shadow.x;
+        document.getElementById('shadowY').value = layer.shadow.y;
+        document.getElementById('shadowYValue').value = layer.shadow.y;
+        document.getElementById('shadowBlur').value = layer.shadow.blur;
+        document.getElementById('shadowBlurValue').value = layer.shadow.blur;
+    }
+
+    toggleLayerVisibility(id) {
+        const layer = this.layers[id];
+        layer.visible = !layer.visible;
+        layer.element.style.display = layer.visible ? '' : 'none';
+        const btn = document.querySelector(`[data-layer="${id}"] .visibility-btn`);
+        btn.textContent = layer.visible ? '👁' : '👁‍🗨';
+    }
+
+    deleteLayer(id) {
+        const layer = this.layers[id];
+        layer.element.remove();
+        document.querySelector(`[data-layer="${id}"]`).remove();
+        delete this.layers[id];
+
+        if (this.activeLayerId === id) {
+            this.activeLayerId = null;
+            const remainingLayerIds = Object.keys(this.layers);
+            if (remainingLayerIds.length > 0) {
+                this.setActiveLayer(remainingLayerIds[0]);
+            } else {
+                // Handle UI when no layers are left
+                this.updateCSS(); // Clears the CSS output
+            }
+        }
+        this.updateCSS();
+    }
+
+    clearAllLayers() {
+        this.layerList.innerHTML = '';
+        this.viewportScene.innerHTML = '';
+        this.layers = {};
+        this.activeLayerId = null;
+        this.updateCSS();
+    }
+
+    playAnimation() {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        layer.element.style.animation = 'none';
+        void layer.element.offsetWidth; // Trigger reflow
+        layer.element.style.animation = `${layer.id}-animation ${this.animation.duration}s ${this.animation.timingFunction} ${this.animation.delay}s ${this.animation.iterationCount} ${this.animation.direction}`;
+    }
+
+    pauseAnimation() {
+        if (!this.activeLayerId) return;
+        this.layers[this.activeLayerId].element.style.animationPlayState = 'paused';
+    }
+
+    resetAnimation() {
+        if (!this.activeLayerId) return;
+        const layer = this.layers[this.activeLayerId];
+        layer.element.style.animation = 'none';
+        
+        layer.transforms = {
+            translateX: 0, translateY: 0, translateZ: 0,
+            scaleX: 1, scaleY: 1, scaleZ: 1,
+            rotateX: 0, rotateY: 0, rotateZ: 0
+        };
+        this.updateElement(layer);
+        this.updateControlsToLayer(layer);
+        this.updateCSS();
+    }
+
+    copyCSS() {
+        this.cssOutput.select();
+        document.execCommand('copy');
+        const button = document.getElementById('copyCSS');
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 1500);
+    }
+
+    makePanelsDraggable() {
+        const panels = document.querySelectorAll('.floating-panel');
+        panels.forEach(panel => {
+            const header = panel.querySelector('.panel-header');
+            let isDragging = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+
+            header.addEventListener('mousedown', e => {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+                if (e.target === header || header.contains(e.target)) isDragging = true;
+            });
+            document.addEventListener('mousemove', e => {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    panel.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                }
+            });
+            document.addEventListener('mouseup', () => isDragging = false);
+        });
+    }
+
+    saveGradient() {
+        const name = prompt('Enter a name for the gradient:');
+        if (name && this.activeLayerId) {
+            const layer = this.layers[this.activeLayerId];
+            this.savedGradients[name] = JSON.parse(JSON.stringify(layer.gradient));
+            this.updateSavedGradientsUI();
+        }
+    }
+
+    updateSavedGradientsUI() {
+        const select = document.getElementById('savedGradients');
+        select.innerHTML = '';
+        for (const name in this.savedGradients) {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            select.appendChild(option);
+        }
+    }
+
+    applySavedGradient(name) {
+        if (!this.activeLayerId || !this.savedGradients[name]) return;
+        const layer = this.layers[this.activeLayerId];
+        layer.gradient = JSON.parse(JSON.stringify(this.savedGradients[name]));
+        
+        this.updateElement(layer);
+        this.updateControlsToLayer(layer);
+        this.updateCSS();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.cssViewport = new CSSAnimationViewport();
+    const defaultSettings = {
+  "layers": {
+    "layer-1752966372675": {
+      "id": "layer-1752966372675",
+      "name": "Base Layer",
+      "visible": true,
+      "opacity": 1,
+      "shadow": {
+        "enabled": false,
+        "color": "#000000",
+        "x": 0,
+        "y": 0,
+        "blur": 10
+      },
+      "transforms": {
+        "translateX": 0,
+        "translateY": 0,
+        "translateZ": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "scaleZ": 1,
+        "rotateX": 45,
+        "rotateY": 0,
+        "rotateZ": -45
+      },
+      "gradient": {
+        "type": "radial",
+        "angle": 45,
+        "stops": [
+          {
+            "color": "#3498db",
+            "alpha": "1",
+            "position": "8"
+          },
+          {
+            "color": "#40e7dc",
+            "alpha": "0.67",
+            "position": "74"
+          }
+        ]
+      }
+    }
+  },
+  "animation": {},
+  "savedGradients": {
+    "Sunset": "linear-gradient(45deg, #ff6b6b, #feca57)",
+    "Ocean": "linear-gradient(45deg, #48dbfb, #1dd1a1)",
+    "Grape": "linear-gradient(45deg, #5f27cd, #c56cf0)",
+    "Blue Red": "linear-gradient(45deg, rgba(52, 152, 219, 1) 24%, rgba(231, 76, 60, 1) 73%)",
+    "Blue Green A": "radial-gradient(circle, rgba(52, 152, 219, 1) 8%, rgba(64, 231, 220, 0.67) 74%)"
+  }
+};
+    applySettings(defaultSettings);
+});
+
+
+
+// --- Settings Management ---
+
+function saveSettings() {
+    const settings = {
+        layers: window.cssViewport.layers,
+        animation: window.cssViewport.animation,
+        savedGradients: window.cssViewport.savedGradients
+    };
+
+    // We need to remove the DOM element from the layers before saving
+    const serializableSettings = JSON.parse(JSON.stringify(settings));
+    for (const layerId in serializableSettings.layers) {
+        delete serializableSettings.layers[layerId].element;
+    }
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(serializableSettings, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "viewport_settings.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function loadSettings(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const contents = e.target.result;
+        try {
+            const settings = JSON.parse(contents);
+            applySettings(settings);
+        } catch (error) {
+            console.error("Error parsing JSON file:", error);
+            alert("Could not load settings: Invalid file format.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function applySettings(settings) {
+    const viewport = window.cssViewport;
+
+    // Clear existing layers and their UI elements
+    viewport.clearAllLayers();
+
+    viewport.animation = settings.animation || {};
+    viewport.savedGradients = settings.savedGradients || {};
+
+    // Recreate layers from settings
+    for (const layerId in settings.layers) {
+        const layerData = settings.layers[layerId];
+        
+        // Create a new layer element
+        const newElement = document.createElement('div');
+        newElement.className = 'animated-rectangle';
+        newElement.id = layerData.id;
+        viewport.viewportScene.appendChild(newElement);
+
+        // Restore layer data
+        viewport.layers[layerData.id] = {
+            ...layerData,
+            element: newElement
+        };
+        
+        viewport.addLayerToUI(layerData.id, layerData.name);
+        viewport.updateElement(viewport.layers[layerData.id]);
+    }
+
+    // Set the active layer to be the first one, if it exists
+    const layerIds = Object.keys(viewport.layers);
+    if (layerIds.length > 0) {
+        viewport.setActiveLayer(layerIds[0]);
+    } else {
+        // If no layers are loaded, create a default one
+        viewport.addLayer('Base Layer', false);
+    }
+
+    viewport.updateSavedGradientsUI();
+    viewport.updateCSS();
+    
+    // Reset the file input so the same file can be loaded again
+    document.getElementById('loadSettingsInput').value = '';
+}
+    </script>
 </body>
 </html>
