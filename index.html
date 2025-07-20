@@ -317,19 +317,42 @@ button:active {
 }
 
 .layer-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 8px 12px;
     background: #f8f9fa;
     border-radius: 6px;
     margin-bottom: 4px;
     font-size: 13px;
+    transition: background-color 0.2s;
 }
 
 .layer-item.active {
     background: #e3f2fd;
-    border-left: 3px solid #3498db;
+}
+
+.layer-item-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.layer-item-details {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.layer-item-details.collapsed {
+    display: none;
+}
+
+.layer-gradient-select {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 .layer-controls {
@@ -1344,10 +1367,43 @@ class CSSAnimationViewport {
         const layerItem = document.createElement('div');
         layerItem.className = 'layer-item';
         layerItem.dataset.layer = id;
-        layerItem.innerHTML = `\n            <span class="layer-name" data-layer="${id}">${name}</span>\n            <div class="layer-controls">\n                <button class="rename-btn" title="Rename layer">✏️</button>\n                <button class="copy-btn" title="Copy layer">❐</button>\n                <button class="visibility-btn" title="Toggle visibility">👁</button>\n                <button class="delete-btn" title="Delete layer">×</button>\n            </div>\n        `;
+        layerItem.innerHTML = `
+            <div class="layer-item-main">
+                <span class="layer-name" data-layer="${id}">${name}</span>
+                <div class="layer-controls">
+                    <button class="rename-btn" title="Rename layer">✏️</button>
+                    <button class="copy-btn" title="Copy layer">❐</button>
+                    <button class="visibility-btn" title="Toggle visibility">👁</button>
+                    <button class="delete-btn" title="Delete layer">×</button>
+                    <button class="expand-btn" title="More options">...</button>
+                </div>
+            </div>
+            <div class="layer-item-details collapsed">
+                <div class="control-group">
+                    <label>Gradient:</label>
+                    <select class="layer-gradient-select" data-layer-id="${id}"></select>
+                </div>
+            </div>
+        `;
         this.layerList.appendChild(layerItem);
 
-        layerItem.addEventListener('click', () => this.setActiveLayer(id));
+        const gradientSelect = layerItem.querySelector('.layer-gradient-select');
+        for (const gradientName in this.savedGradients) {
+            const option = document.createElement('option');
+            option.value = gradientName;
+            option.textContent = gradientName;
+            gradientSelect.appendChild(option);
+        }
+
+        gradientSelect.addEventListener('change', (e) => {
+            this.applySavedGradientToLayer(id, e.target.value);
+        });
+
+        layerItem.querySelector('.layer-item-main').addEventListener('click', (e) => {
+            if (!e.target.closest('.layer-controls')) {
+                this.setActiveLayer(id);
+            }
+        });
         layerItem.querySelector('.copy-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             this.copyLayer(id);
@@ -1363,6 +1419,12 @@ class CSSAnimationViewport {
         layerItem.querySelector('.delete-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             this.deleteLayer(id);
+        });
+        layerItem.querySelector('.expand-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const details = layerItem.querySelector('.layer-item-details');
+            details.classList.toggle('collapsed');
+            e.target.textContent = details.classList.contains('collapsed') ? '...' : '✕';
         });
     }
 
@@ -1536,7 +1598,7 @@ class CSSAnimationViewport {
         const name = prompt('Enter a name for the gradient:');
         if (name && this.activeLayerId) {
             const layer = this.layers[this.activeLayerId];
-            this.savedGradients[name] = layer.gradient;
+            this.savedGradients[name] = JSON.parse(JSON.stringify(layer.gradient));
             this.updateSavedGradientsUI();
         }
     }
@@ -1552,15 +1614,23 @@ class CSSAnimationViewport {
         }
     }
 
-    applySavedGradient(name) {
-        if (!this.activeLayerId || !this.savedGradients[name]) return;
-        const layer = this.layers[this.activeLayerId];
-        layer.gradient = this.savedGradients[name];
-        
+    applySavedGradientToLayer(layerId, gradientName) {
+        if (!this.layers[layerId] || !this.savedGradients[gradientName]) return;
+        const layer = this.layers[layerId];
+        // Deep copy to prevent accidental modification of saved gradients
+        layer.gradient = JSON.parse(JSON.stringify(this.savedGradients[gradientName]));
+
         this.updateElement(layer);
-        this.updateControlsToLayer(layer);
+        // If the modified layer is the active one, update the main controls
+        if (this.activeLayerId === layerId) {
+            this.updateControlsToLayer(layer);
+        }
         this.updateCSS();
-        this.updateGradientPreview();
+    }
+
+    applySavedGradient(name) {
+        if (!this.activeLayerId) return;
+        this.applySavedGradientToLayer(this.activeLayerId, name);
     }
 
     updateGradientPreview() {
