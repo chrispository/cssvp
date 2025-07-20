@@ -219,7 +219,7 @@ body {
     display: block;
     font-size: 13px;
     color: #555;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .gradient-controls select {
@@ -494,6 +494,47 @@ button:active {
     background: #c0392b;
 }
 
+/* Collapsible Sections */
+.collapsible-section {
+    margin-bottom: 16px;
+}
+
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.collapsible-header:hover {
+    color: #3498db;
+}
+
+.collapsible-header .collapse-toggle {
+    margin-right: 6px;
+    font-size: 12px;
+    transition: transform 0.2s ease;
+    width: 14px;
+    text-align: center;
+}
+
+.collapsible-header.collapsed .collapse-toggle {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .viewport-container {
@@ -550,79 +591,94 @@ textarea:focus {
                 </div>
                 <div class="panel-content">
                     <!-- Translation Controls -->
-                    <div class="control-group">
-                        <h4>Translation</h4>
-                        <div class="layer-property-group">
-                            <label>X</label>
-                            <div class="control-row">
-                                <input type="range" id="translateX" min="-200" max="200" value="0">
-                                <input type="number" id="translateXValue" class="value-input" step="1" value="0">
+                    <div class="control-group collapsible-section">
+                        <h4 class="collapsible-header">
+                            <span class="collapse-toggle">−</span>
+                            Translation
+                        </h4>
+                        <div class="collapsible-content">
+                            <div class="layer-property-group">
+                                <label>X</label>
+                                <div class="control-row">
+                                    <input type="range" id="translateX" min="-200" max="200" value="0">
+                                    <input type="number" id="translateXValue" class="value-input" step="1" value="0">
+                                </div>
                             </div>
-                        </div>
-                        <div class="layer-property-group">
-                            <label>Y</label>
-                            <div class="control-row">
-                                <input type="range" id="translateY" min="-200" max="200" value="0">
-                                <input type="number" id="translateYValue" class="value-input" step="1" value="0">
+                            <div class="layer-property-group">
+                                <label>Y</label>
+                                <div class="control-row">
+                                    <input type="range" id="translateY" min="-200" max="200" value="0">
+                                    <input type="number" id="translateYValue" class="value-input" step="1" value="0">
+                                </div>
                             </div>
-                        </div>
-                        <div class="layer-property-group">
-                            <label>Z</label>
-                            <div class="control-row">
-                                <input type="range" id="translateZ" min="-200" max="200" value="0">
-                                <input type="number" id="translateZValue" class="value-input" step="1" value="0">
+                            <div class="layer-property-group">
+                                <label>Z</label>
+                                <div class="control-row">
+                                    <input type="range" id="translateZ" min="-200" max="200" value="0">
+                                    <input type="number" id="translateZValue" class="value-input" step="1" value="0">
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Scale Controls -->
-                    <div class="control-group">
-                        <h4>Scale</h4>
-                        <div class="layer-property-group">
-                            <label>X</label>
-                            <div class="control-row">
-                                <input type="range" id="scaleX" min="0.1" max="3" step="0.1" value="1">
-                                <input type="number" id="scaleXValue" class="value-input" step="0.1" value="1">
+                    <div class="control-group collapsible-section">
+                        <h4 class="collapsible-header">
+                            <span class="collapse-toggle">−</span>
+                            Scale
+                        </h4>
+                        <div class="collapsible-content">
+                            <div class="layer-property-group">
+                                <label>X</label>
+                                <div class="control-row">
+                                    <input type="range" id="scaleX" min="0.1" max="3" step="0.1" value="1">
+                                    <input type="number" id="scaleXValue" class="value-input" step="0.1" value="1">
+                                </div>
                             </div>
-                        </div>
-                        <div class="layer-property-group">
-                            <label>Y</label>
-                            <div class="control-row">
-                                <input type="range" id="scaleY" min="0.1" max="3" step="0.1" value="1">
-                                <input type="number" id="scaleYValue" class="value-input" step="0.1" value="1">
+                            <div class="layer-property-group">
+                                <label>Y</label>
+                                <div class="control-row">
+                                    <input type="range" id="scaleY" min="0.1" max="3" step="0.1" value="1">
+                                    <input type="number" id="scaleYValue" class="value-input" step="0.1" value="1">
+                                </div>
                             </div>
-                        </div>
-                        <div class="layer-property-group">
-                            <label>Z</label>
-                            <div class="control-row">
-                                <input type="range" id="scaleZ" min="0.1" max="3" step="0.1" value="1">
-                                <input type="number" id="scaleZValue" class="value-input" step="0.1" value="1">
+                            <div class="layer-property-group">
+                                <label>Z</label>
+                                <div class="control-row">
+                                    <input type="range" id="scaleZ" min="0.1" max="3" step="0.1" value="1">
+                                    <input type="number" id="scaleZValue" class="value-input" step="0.1" value="1">
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Rotation Controls -->
-                    <div class="control-group">
-                        <h4>Rotation</h4>
-                        <div class="layer-property-group">
-                            <label>X</label>
-                            <div class="control-row">
-                                <input type="range" id="rotateX" min="-360" max="360" value="0">
-                                <input type="number" id="rotateXValue" class="value-input" step="1" value="0">
+                    <div class="control-group collapsible-section">
+                        <h4 class="collapsible-header">
+                            <span class="collapse-toggle">−</span>
+                            Rotation
+                        </h4>
+                        <div class="collapsible-content">
+                            <div class="layer-property-group">
+                                <label>X</label>
+                                <div class="control-row">
+                                    <input type="range" id="rotateX" min="-360" max="360" value="0">
+                                    <input type="number" id="rotateXValue" class="value-input" step="1" value="0">
+                                </div>
                             </div>
-                        </div>
-                        <div class="layer-property-group">
-                            <label>Y</label>
-                            <div class="control-row">
-                                <input type="range" id="rotateY" min="-360" max="360" value="0">
-                                <input type="number" id="rotateYValue" class="value-input" step="1" value="0">
+                            <div class="layer-property-group">
+                                <label>Y</label>
+                                <div class="control-row">
+                                    <input type="range" id="rotateY" min="-360" max="360" value="0">
+                                    <input type="number" id="rotateYValue" class="value-input" step="1" value="0">
+                                </div>
                             </div>
-                        </div>
-                        <div class="layer-property-group">
-                            <label>Z</label>
-                            <div class="control-row">
-                                <input type="range" id="rotateZ" min="-360" max="360" value="0">
-                                <input type="number" id="rotateZValue" class="value-input" step="1" value="0">
+                            <div class="layer-property-group">
+                                <label>Z</label>
+                                <div class="control-row">
+                                    <input type="range" id="rotateZ" min="-360" max="360" value="0">
+                                    <input type="number" id="rotateZValue" class="value-input" step="1" value="0">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -849,7 +905,7 @@ class CSSAnimationViewport {
     }
 
     init() {
-        this.addLayer('Base Layer', false);
+        this.addLayer('Base Layer');
         this.setupEventListeners();
         this.updateSavedGradientsUI();
     }
@@ -951,12 +1007,28 @@ class CSSAnimationViewport {
             });
         });
 
-        // Panel collapse/expand
-        document.querySelectorAll('.collapse-toggle').forEach(toggle => {
+        // Panel collapse/expand (only for docked panels, not transform sections)
+        document.querySelectorAll('.docked-panel .collapse-toggle').forEach(toggle => {
             toggle.addEventListener('click', (e) => {
                 const panel = toggle.closest('.docked-panel');
                 panel.classList.toggle('collapsed');
                 toggle.textContent = panel.classList.contains('collapsed') ? '+' : '-';
+                e.stopPropagation(); // Prevent triggering other events
+            });
+        });
+
+        // Transform section collapse/expand
+        document.querySelectorAll('.collapsible-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent triggering parent panel collapse
+                
+                const content = header.nextElementSibling;
+                const toggle = header.querySelector('.collapse-toggle');
+                
+                header.classList.toggle('collapsed');
+                content.classList.toggle('collapsed');
+                
+                toggle.textContent = header.classList.contains('collapsed') ? '+' : '−';
             });
         });
 
@@ -1021,6 +1093,7 @@ class CSSAnimationViewport {
             this.updateElement(layer);
             this.updateCSS();
             this.updateGradientPreview();
+            this.renderColorStopsUI(layer.gradient.stops);
         }
     }
 
@@ -1187,8 +1260,16 @@ class CSSAnimationViewport {
         this.cssOutput.value = css;
     }
 
-    addLayer(name, isPrompt = true, sourceLayer = null) {
-        const layerName = isPrompt ? prompt('Enter layer name:', sourceLayer ? `${sourceLayer.name} Copy` : '') : name;
+    addLayer(name, sourceLayer = null) {
+        let layerName = name;
+        if (!layerName) {
+            if (sourceLayer) {
+                layerName = `copy of ${sourceLayer.name}`;
+            } else {
+                layerName = 'new layer';
+            }
+        }
+
         if (layerName) {
             const id = `layer-${Date.now()}`;
             const newElement = document.createElement('div');
@@ -1230,9 +1311,9 @@ class CSSAnimationViewport {
                         scaleX: 1,
                         scaleY: 1,
                         scaleZ: 1,
-                        rotateX: 45,
-                        rotateY: 0,
-                        rotateZ: -45
+                        rotateX: Math.floor(Math.random() * 90) - 45,
+                        rotateY: Math.floor(Math.random() * 90) - 45,
+                        rotateZ: Math.floor(Math.random() * 90) - 45
                     },
                     gradient: {
                         type: 'linear',
@@ -1255,7 +1336,7 @@ class CSSAnimationViewport {
     copyLayer(id) {
         const sourceLayer = this.layers[id];
         if (sourceLayer) {
-            this.addLayer(null, true, sourceLayer);
+            this.addLayer(null, sourceLayer);
         }
     }
 
@@ -1263,13 +1344,17 @@ class CSSAnimationViewport {
         const layerItem = document.createElement('div');
         layerItem.className = 'layer-item';
         layerItem.dataset.layer = id;
-        layerItem.innerHTML = `\n            <span>${name}</span>\n            <div class="layer-controls">\n                <button class="copy-btn" title="Copy layer">❐</button>\n                <button class="visibility-btn" title="Toggle visibility">👁</button>\n                <button class="delete-btn" title="Delete layer">×</button>\n            </div>\n        `;
+        layerItem.innerHTML = `\n            <span class="layer-name" data-layer="${id}">${name}</span>\n            <div class="layer-controls">\n                <button class="rename-btn" title="Rename layer">✏️</button>\n                <button class="copy-btn" title="Copy layer">❐</button>\n                <button class="visibility-btn" title="Toggle visibility">👁</button>\n                <button class="delete-btn" title="Delete layer">×</button>\n            </div>\n        `;
         this.layerList.appendChild(layerItem);
 
         layerItem.addEventListener('click', () => this.setActiveLayer(id));
         layerItem.querySelector('.copy-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             this.copyLayer(id);
+        });
+        layerItem.querySelector('.rename-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.startRenamingLayer(id);
         });
         layerItem.querySelector('.visibility-btn').addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1350,6 +1435,56 @@ class CSSAnimationViewport {
         this.updateCSS();
     }
 
+    startRenamingLayer(id) {
+        const layer = this.layers[id];
+        if (!layer) return;
+
+        const nameSpan = document.querySelector(`.layer-name[data-layer="${id}"]`);
+        if (!nameSpan) return;
+
+        const currentName = layer.name;
+        
+        // Create input element
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentName;
+        input.style.cssText = 'width: 100%; border: 1px solid #3498db; padding: 2px 4px; font-size: 13px;';
+        
+        // Replace span with input
+        nameSpan.replaceWith(input);
+        input.focus();
+        input.select();
+
+        // Handle save/cancel
+        const finishRenaming = () => {
+            const newName = input.value.trim() || currentName;
+            layer.name = newName;
+            
+            // Replace input back with span
+            const newSpan = document.createElement('span');
+            newSpan.className = 'layer-name';
+            newSpan.dataset.layer = id;
+            newSpan.textContent = newName;
+            input.replaceWith(newSpan);
+            
+            this.updateCSS();
+        };
+
+        input.addEventListener('blur', finishRenaming);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                finishRenaming();
+            } else if (e.key === 'Escape') {
+                // Cancel renaming
+                const newSpan = document.createElement('span');
+                newSpan.className = 'layer-name';
+                newSpan.dataset.layer = id;
+                newSpan.textContent = currentName;
+                input.replaceWith(newSpan);
+            }
+        });
+    }
+
     clearAllLayers() {
         this.layerList.innerHTML = '';
         this.viewportScene.innerHTML = '';
@@ -1401,7 +1536,7 @@ class CSSAnimationViewport {
         const name = prompt('Enter a name for the gradient:');
         if (name && this.activeLayerId) {
             const layer = this.layers[this.activeLayerId];
-            this.savedGradients[name] = JSON.parse(JSON.stringify(layer.gradient));
+            this.savedGradients[name] = layer.gradient;
             this.updateSavedGradientsUI();
         }
     }
@@ -1420,7 +1555,7 @@ class CSSAnimationViewport {
     applySavedGradient(name) {
         if (!this.activeLayerId || !this.savedGradients[name]) return;
         const layer = this.layers[this.activeLayerId];
-        layer.gradient = JSON.parse(JSON.stringify(this.savedGradients[name]));
+        layer.gradient = this.savedGradients[name];
         
         this.updateElement(layer);
         this.updateControlsToLayer(layer);
@@ -1445,6 +1580,8 @@ document.addEventListener('DOMContentLoaded', () => {
       "name": "Base Layer",
       "visible": true,
       "opacity": 1,
+      "width": 200,
+      "height": 200,
       "shadow": {
         "enabled": false,
         "color": "#000000",
@@ -1483,11 +1620,36 @@ document.addEventListener('DOMContentLoaded', () => {
   },
   "animation": {},
   "savedGradients": {
-    "Sunset": "linear-gradient(45deg, #ff6b6b, #feca57)",
-    "Ocean": "linear-gradient(45deg, #48dbfb, #1dd1a1)",
-    "Grape": "linear-gradient(45deg, #5f27cd, #c56cf0)",
-    "Blue Red": "linear-gradient(45deg, rgba(52, 152, 219, 1) 24%, rgba(231, 76, 60, 1) 73%)",
-    "Blue Green A": "radial-gradient(circle, rgba(52, 152, 219, 1) 8%, rgba(64, 231, 220, 0.67) 74%)"
+    "Sunset": {
+        "type": "linear", "angle": 45, "stops": [
+            { "color": "#ff6b6b", "alpha": 1, "position": 0 },
+            { "color": "#feca57", "alpha": 1, "position": 100 }
+        ]
+    },
+    "Ocean": {
+        "type": "linear", "angle": 45, "stops": [
+            { "color": "#48dbfb", "alpha": 1, "position": 0 },
+            { "color": "#1dd1a1", "alpha": 1, "position": 100 }
+        ]
+    },
+    "Grape": {
+        "type": "linear", "angle": 45, "stops": [
+            { "color": "#5f27cd", "alpha": 1, "position": 0 },
+            { "color": "#c56cf0", "alpha": 1, "position": 100 }
+        ]
+    },
+    "Blue Red": {
+        "type": "linear", "angle": 45, "stops": [
+            { "color": "#3498db", "alpha": 1, "position": 24 },
+            { "color": "#e74c3c", "alpha": 1, "position": 73 }
+        ]
+    },
+    "Blue Green A": {
+        "type": "radial", "angle": 45, "stops": [
+            { "color": "#3498db", "alpha": 1, "position": 8 },
+            { "color": "#40e7dc", "alpha": 0.67, "position": 74 }
+        ]
+    }
   }
 };
     applySettings(defaultSettings);
