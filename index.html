@@ -874,6 +874,45 @@ textarea:focus {
                     <button id="playAnimation">Play Animation</button>
                     <button id="pauseAnimation">Pause Animation</button>
                     <button id="resetAnimation">Reset</button>
+                    
+                    <!-- 5-Keyframe Animation System -->
+                    <div class="control-group" style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 15px;">
+                        <h4 style="margin-bottom: 10px;">5-Keyframe Animation</h4>
+                        <div style="font-size: 11px; color: #666; margin-bottom: 10px; line-height: 1.4;">
+                            <strong>Instructions:</strong> Position your layer, then click "Set Current" to capture each keyframe. Use 1-5 keyframes, they'll be evenly spaced across the animation.
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 10px; position: relative;">
+                            <button class="keyframe-btn" data-keyframe="0" style="padding: 8px; font-size: 11px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; position: relative;">
+                                <span style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #3498db; opacity: 0;" class="selection-arrow">▲</span>
+                                KF1
+                            </button>
+                            <button class="keyframe-btn" data-keyframe="1" style="padding: 8px; font-size: 11px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; position: relative;">
+                                <span style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #3498db; opacity: 0;" class="selection-arrow">▲</span>
+                                KF2
+                            </button>
+                            <button class="keyframe-btn" data-keyframe="2" style="padding: 8px; font-size: 11px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; position: relative;">
+                                <span style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #3498db; opacity: 0;" class="selection-arrow">▲</span>
+                                KF3
+                            </button>
+                            <button class="keyframe-btn" data-keyframe="3" style="padding: 8px; font-size: 11px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; position: relative;">
+                                <span style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #3498db; opacity: 0;" class="selection-arrow">▲</span>
+                                KF4
+                            </button>
+                            <button class="keyframe-btn" data-keyframe="4" style="padding: 8px; font-size: 11px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; position: relative;">
+                                <span style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #3498db; opacity: 0;" class="selection-arrow">▲</span>
+                                KF5
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                            <button id="setKeyframe" style="flex: 1; padding: 8px; font-size: 12px; background: #27ae60;">Set Current</button>
+                            <button id="playKeyframes" style="flex: 1; padding: 8px; font-size: 12px; background: #8e44ad;">Play Keyframes</button>
+                            <button id="clearKeyframes" style="flex: 1; padding: 8px; font-size: 12px; background: #e74c3c;">Clear All</button>
+                        </div>
+                        <div id="keyframeStatus" style="font-size: 11px; color: #666; text-align: center;">
+                            <span id="keyframeCount">0/5 keyframes set</span> • 
+                            <span id="selectedKeyframe">No keyframe selected</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -924,6 +963,7 @@ class CSSAnimationViewport {
         };
 
         this.animation = {};
+        this.keyframes = {}; // Store keyframes for each layer
 
         this.init();
     }
@@ -1018,6 +1058,16 @@ class CSSAnimationViewport {
         document.getElementById('pauseAnimation').addEventListener('click', () => this.pauseAnimation());
         document.getElementById('resetAnimation').addEventListener('click', () => this.resetAnimation());
 
+        // Keyframe buttons
+        document.getElementById('setKeyframe').addEventListener('click', () => this.setCurrentKeyframe());
+        document.getElementById('playKeyframes').addEventListener('click', () => this.playKeyframes());
+        document.getElementById('clearKeyframes').addEventListener('click', () => this.clearKeyframes());
+        
+        // Keyframe selection buttons
+        document.querySelectorAll('.keyframe-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.selectKeyframe(parseInt(e.target.dataset.keyframe)));
+        });
+
         // Copy CSS
         document.getElementById('copyCSS').addEventListener('click', () => this.copyCSS());
 
@@ -1068,7 +1118,8 @@ class CSSAnimationViewport {
     rotateCamera() {
         for (const layerId in this.layers) {
             const layer = this.layers[layerId];
-            layer.transforms.rotateZ = (layer.transforms.rotateZ + 45) % 360;
+            // Instead of wrapping at 360, allow continuous rotation
+            layer.transforms.rotateZ += 45;
             this.updateElement(layer);
         }
         this.updateCSS();
@@ -1190,16 +1241,34 @@ class CSSAnimationViewport {
             stopElement.innerHTML = `
                 <input type="color" data-property="color" value="${stop.color}">
                 <div class="alpha-control">
-                    <label>Alpha: ${stop.alpha}</label>
+                    <label class="alpha-label">Alpha: ${stop.alpha}</label>
                     <input type="range" data-property="alpha" min="0" max="1" step="0.01" value="${stop.alpha}">
                 </div>
                 <div class="alpha-control">
-                    <label>Pos: ${stop.position}%</label>
+                    <label class="position-label">Pos: ${stop.position}%</label>
                     <input type="range" data-property="position" min="0" max="100" value="${stop.position}">
                 </div>
                 <button class="remove-stop-btn" title="Remove color stop">×</button>
             `;
             container.appendChild(stopElement);
+
+            // Add real-time update listeners for sliders
+            const alphaSlider = stopElement.querySelector('[data-property="alpha"]');
+            const positionSlider = stopElement.querySelector('[data-property="position"]');
+            
+            alphaSlider.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                stopElement.querySelector('.alpha-label').textContent = `Alpha: ${value}`;
+                this.updateGradientStop(index, 'alpha', value);
+                this.updateGradientPreview();
+            });
+            
+            positionSlider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                stopElement.querySelector('.position-label').textContent = `Pos: ${value}%`;
+                this.updateGradientStop(index, 'position', value);
+                this.updateGradientPreview();
+            });
         });
     }
 
@@ -1455,6 +1524,7 @@ class CSSAnimationViewport {
         this.activeLayerId = id;
         document.querySelector(`[data-layer="${id}"]`).classList.add('active');
         this.updateControlsToLayer(this.layers[id]);
+        this.updateKeyframeStatus();
     }
 
     updateControlsToLayer(layer) {
@@ -1598,6 +1668,161 @@ class CSSAnimationViewport {
         this.updateElement(layer);
         this.updateControlsToLayer(layer);
         this.updateCSS();
+    }
+
+    // --- 5-Keyframe Animation System ---
+
+    setCurrentKeyframe() {
+        if (!this.activeLayerId) return;
+        
+        const layer = this.layers[this.activeLayerId];
+        if (!this.keyframes[this.activeLayerId]) {
+            this.keyframes[this.activeLayerId] = Array(5).fill(null);
+        }
+
+        // Find first empty keyframe or use KF1 by default
+        let targetIndex = 0;
+        for (let i = 0; i < 5; i++) {
+            if (!this.keyframes[this.activeLayerId][i]) {
+                targetIndex = i;
+                break;
+            }
+        }
+
+        // Capture current state
+        this.keyframes[this.activeLayerId][targetIndex] = {
+            transforms: { ...layer.transforms },
+            opacity: layer.opacity,
+            shadow: { ...layer.shadow }
+        };
+
+        // Update UI
+        this.updateKeyframeStatus();
+    }
+
+    selectKeyframe(index) {
+        // Update arrow indicators
+        document.querySelectorAll('.keyframe-btn').forEach((btn, i) => {
+            const arrow = btn.querySelector('.selection-arrow');
+            arrow.style.opacity = i === index ? '1' : '0';
+        });
+    }
+
+    hasKeyframe(index) {
+        if (!this.activeLayerId || !this.keyframes[this.activeLayerId]) return false;
+        return this.keyframes[this.activeLayerId][index] !== null;
+    }
+
+    updateKeyframeStatus() {
+        if (!this.activeLayerId || !this.keyframes[this.activeLayerId]) {
+            document.getElementById('keyframeCount').textContent = '0/5 keyframes set';
+            document.getElementById('selectedKeyframe').textContent = 'Position layer to capture';
+            return;
+        }
+
+        const count = this.keyframes[this.activeLayerId].filter(kf => kf !== null).length;
+        document.getElementById('keyframeCount').textContent = `${count}/5 keyframes set`;
+        
+        // Update button styles based on which keyframes are set
+        this.keyframes[this.activeLayerId].forEach((kf, index) => {
+            const btn = document.querySelector(`[data-keyframe="${index}"]`);
+            if (btn) {
+                btn.style.background = kf ? '#27ae60' : '#95a5a6';
+                btn.style.border = kf ? '2px solid #27ae60' : 'none';
+                btn.title = kf ? `Keyframe ${index + 1} is set` : `Keyframe ${index + 1} is empty`;
+            }
+        });
+        
+        // Update instructions based on count
+        if (count === 0) {
+            document.getElementById('selectedKeyframe').textContent = 'Position layer to capture';
+        } else if (count === 1) {
+            document.getElementById('selectedKeyframe').textContent = 'Add more for animation';
+        } else {
+            document.getElementById('selectedKeyframe').textContent = 'Ready to play animation';
+        }
+    }
+
+    playKeyframes() {
+        if (!this.activeLayerId || !this.keyframes[this.activeLayerId]) return;
+        
+        const layer = this.layers[this.activeLayerId];
+        const keyframes = this.keyframes[this.activeLayerId].filter(kf => kf !== null);
+        
+        if (keyframes.length === 0) {
+            alert('No keyframes set! Click "Set Current" to capture some keyframes.');
+            return;
+        }
+
+        // Generate CSS keyframes
+        const duration = parseFloat(document.getElementById('duration').value) || 2;
+        const timingFunction = document.getElementById('timingFunction').value || 'ease';
+        const delay = parseFloat(document.getElementById('delay').value) || 0;
+        const iterationCount = document.getElementById('iterationCount').value || '1';
+        const direction = document.getElementById('direction').value || 'normal';
+
+        // Create keyframe steps
+        const stepSize = 100 / Math.max(keyframes.length - 1, 1);
+        let keyframeCSS = '';
+
+        keyframes.forEach((kf, index) => {
+            const percentage = Math.round(index * stepSize);
+            const transform = `
+                translate3d(${kf.transforms.translateX}px, ${kf.transforms.translateY}px, ${kf.transforms.translateZ}px)
+                scale3d(${kf.transforms.scaleX}, ${kf.transforms.scaleY}, ${kf.transforms.scaleZ})
+                rotateX(${kf.transforms.rotateX}deg)
+                rotateY(${kf.transforms.rotateY}deg)
+                rotateZ(${kf.transforms.rotateZ}deg)
+            `;
+            
+            keyframeCSS += `
+    ${percentage}% {
+        transform: ${transform};
+        opacity: ${kf.opacity};
+        box-shadow: ${kf.shadow.enabled ? `${kf.shadow.x}px ${kf.shadow.y}px ${kf.shadow.blur}px ${kf.shadow.color}` : 'none'};
+    }`;
+        });
+
+        // Create animation rule
+        const animationName = `${layer.id}-keyframes`;
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+@keyframes ${animationName} {
+${keyframeCSS}
+}
+        `;
+        
+        // Remove any existing keyframe animation
+        const existingStyle = document.getElementById(`${layer.id}-keyframes-style`);
+        if (existingStyle) existingStyle.remove();
+        
+        styleSheet.id = `${layer.id}-keyframes-style`;
+        document.head.appendChild(styleSheet);
+
+        // Apply animation
+        layer.element.style.animation = 'none';
+        void layer.element.offsetWidth; // Trigger reflow
+        layer.element.style.animation = `${animationName} ${duration}s ${timingFunction} ${delay}s ${iterationCount} ${direction}`;
+    }
+
+    clearKeyframes() {
+        if (!this.activeLayerId) return;
+        
+        this.keyframes[this.activeLayerId] = Array(5).fill(null);
+        
+        // Reset arrow indicators
+        document.querySelectorAll('.selection-arrow').forEach(arrow => {
+            arrow.style.opacity = '0';
+        });
+        
+        this.updateKeyframeStatus();
+        
+        // Remove keyframe animation
+        const layer = this.layers[this.activeLayerId];
+        layer.element.style.animation = 'none';
+        
+        const existingStyle = document.getElementById(`${layer.id}-keyframes-style`);
+        if (existingStyle) existingStyle.remove();
     }
 
     copyCSS() {
