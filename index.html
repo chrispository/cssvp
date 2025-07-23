@@ -703,6 +703,7 @@ textarea:focus {
                                     <input type="number" id="rotateZValue" class="value-input" step="1" value="0">
                                 </div>
                             </div>
+                            <button id="rotateCamera" style="margin-top: 10px; width: 100%;">Rotate Camera</button>
                         </div>
                     </div>
                 </div>
@@ -1059,8 +1060,24 @@ class CSSAnimationViewport {
         document.getElementById('saveSettings').addEventListener('click', () => saveSettings());
         document.getElementById('loadSettings').addEventListener('click', () => document.getElementById('loadSettingsInput').click());
         document.getElementById('loadSettingsInput').addEventListener('change', (e) => loadSettings(e));
+
+        // Camera rotation
+        document.getElementById('rotateCamera').addEventListener('click', () => this.rotateCamera());
     }
 
+    rotateCamera() {
+        for (const layerId in this.layers) {
+            const layer = this.layers[layerId];
+            layer.transforms.rotateZ = (layer.transforms.rotateZ + 45) % 360;
+            this.updateElement(layer);
+        }
+        this.updateCSS();
+        // If there's an active layer, update the controls to reflect the change
+        if (this.activeLayerId) {
+            this.updateControlsToLayer(this.layers[this.activeLayerId]);
+        }
+    }
+    
     updateTransform(property, value) {
         if (!this.activeLayerId) return;
         const layer = this.layers[this.activeLayerId];

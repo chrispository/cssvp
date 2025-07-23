@@ -4,7 +4,9 @@
       "id": "layer-1752966372675",
       "name": "Base Layer",
       "visible": true,
-      "opacity": 1,
+      "opacity": "1",
+      "width": "200",
+      "height": "274",
       "shadow": {
         "enabled": false,
         "color": "#000000",
@@ -21,17 +23,32 @@
         "scaleZ": 1,
         "rotateX": 45,
         "rotateY": 0,
-        "rotateZ": -45
+        "rotateZ": 315
       },
-      "gradient": "linear-gradient(45deg, rgba(52, 152, 219, 1) 24%, rgba(231, 76, 60, 1) 73%)"
+      "gradient": {
+        "type": "radial",
+        "angle": 45,
+        "stops": [
+          {
+            "color": "#3498db",
+            "alpha": "1",
+            "position": "8"
+          },
+          {
+            "color": "#40e7dc",
+            "alpha": "0.67",
+            "position": "74"
+          }
+        ]
+      }
     },
-    "layer-1752989397723": {
-      "id": "layer-1752989397723",
-      "name": "FDdf",
+    "layer-1753047539536": {
+      "id": "layer-1753047539536",
+      "name": "copy of Base Layer",
       "visible": true,
-      "opacity": 1,
-      "width": 200,
-      "height": 200,
+      "opacity": "1",
+      "width": "200",
+      "height": "274",
       "shadow": {
         "enabled": false,
         "color": "#000000",
@@ -41,24 +58,39 @@
       },
       "transforms": {
         "translateX": 10,
-        "translateY": -37,
+        "translateY": -27,
         "translateZ": 0,
         "scaleX": 1,
         "scaleY": 1,
         "scaleZ": 1,
         "rotateX": 45,
         "rotateY": 0,
-        "rotateZ": -45
+        "rotateZ": 315
       },
-      "gradient": "linear-gradient(45deg, #5f27cd, #c56cf0)"
+      "gradient": {
+        "type": "radial",
+        "angle": 45,
+        "stops": [
+          {
+            "color": "#3498db",
+            "alpha": 1,
+            "position": 8
+          },
+          {
+            "color": "#40e7dc",
+            "alpha": 0.67,
+            "position": 74
+          }
+        ]
+      }
     },
-    "layer-1752989632703": {
-      "id": "layer-1752989632703",
-      "name": "asdfas",
+    "layer-1753072506589": {
+      "id": "layer-1753072506589",
+      "name": "copy of copy of Base Layer",
       "visible": true,
-      "opacity": 1,
-      "width": 200,
-      "height": 200,
+      "opacity": "1",
+      "width": "200",
+      "height": "274",
       "shadow": {
         "enabled": false,
         "color": "#000000",
@@ -68,28 +100,70 @@
       },
       "transforms": {
         "translateX": 20,
-        "translateY": -108,
-        "translateZ": 101,
+        "translateY": -55,
+        "translateZ": 0,
         "scaleX": 1,
         "scaleY": 1,
         "scaleZ": 1,
         "rotateX": 45,
         "rotateY": 0,
-        "rotateZ": -45
+        "rotateZ": 315
       },
       "gradient": {
-        "type": "linear",
+        "type": "radial",
         "angle": 45,
         "stops": [
           {
             "color": "#3498db",
             "alpha": 1,
-            "position": 0
+            "position": 8
           },
           {
-            "color": "#e74c3c",
+            "color": "#40e7dc",
+            "alpha": 0.67,
+            "position": 74
+          }
+        ]
+      }
+    },
+    "layer-1753072517353": {
+      "id": "layer-1753072517353",
+      "name": "copy of copy of copy of Base Layer",
+      "visible": true,
+      "opacity": "1",
+      "width": "200",
+      "height": "274",
+      "shadow": {
+        "enabled": false,
+        "color": "#000000",
+        "x": 0,
+        "y": 0,
+        "blur": 10
+      },
+      "transforms": {
+        "translateX": 30,
+        "translateY": -87,
+        "translateZ": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "scaleZ": 1,
+        "rotateX": 45,
+        "rotateY": 0,
+        "rotateZ": 315
+      },
+      "gradient": {
+        "type": "radial",
+        "angle": 45,
+        "stops": [
+          {
+            "color": "#3498db",
             "alpha": 1,
-            "position": 100
+            "position": 8
+          },
+          {
+            "color": "#40e7dc",
+            "alpha": 0.67,
+            "position": 74
           }
         ]
       }
@@ -97,10 +171,85 @@
   },
   "animation": {},
   "savedGradients": {
-    "Sunset": "linear-gradient(45deg, #ff6b6b, #feca57)",
-    "Ocean": "linear-gradient(45deg, #48dbfb, #1dd1a1)",
-    "Grape": "linear-gradient(45deg, #5f27cd, #c56cf0)",
-    "Blue Red": "linear-gradient(45deg, rgba(52, 152, 219, 1) 24%, rgba(231, 76, 60, 1) 73%)",
-    "Blue Green A": "radial-gradient(circle, rgba(52, 152, 219, 1) 8%, rgba(64, 231, 220, 0.67) 74%)"
+    "Sunset": {
+      "type": "linear",
+      "angle": 45,
+      "stops": [
+        {
+          "color": "#ff6b6b",
+          "alpha": 1,
+          "position": 0
+        },
+        {
+          "color": "#feca57",
+          "alpha": 1,
+          "position": 100
+        }
+      ]
+    },
+    "Ocean": {
+      "type": "linear",
+      "angle": 45,
+      "stops": [
+        {
+          "color": "#48dbfb",
+          "alpha": 1,
+          "position": 0
+        },
+        {
+          "color": "#1dd1a1",
+          "alpha": 1,
+          "position": 100
+        }
+      ]
+    },
+    "Grape": {
+      "type": "linear",
+      "angle": 45,
+      "stops": [
+        {
+          "color": "#5f27cd",
+          "alpha": 1,
+          "position": 0
+        },
+        {
+          "color": "#c56cf0",
+          "alpha": 1,
+          "position": 100
+        }
+      ]
+    },
+    "Blue Red": {
+      "type": "linear",
+      "angle": 45,
+      "stops": [
+        {
+          "color": "#3498db",
+          "alpha": 1,
+          "position": 24
+        },
+        {
+          "color": "#e74c3c",
+          "alpha": 1,
+          "position": 73
+        }
+      ]
+    },
+    "Blue Green A": {
+      "type": "radial",
+      "angle": 45,
+      "stops": [
+        {
+          "color": "#3498db",
+          "alpha": 1,
+          "position": 8
+        },
+        {
+          "color": "#40e7dc",
+          "alpha": 0.67,
+          "position": 74
+        }
+      ]
+    }
   }
 }
